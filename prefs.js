@@ -3,6 +3,7 @@ import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import Gtk from 'gi://Gtk';
 import { ExtensionPreferences } from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
+import { lookupTargetSchema } from './gsettingsTargets.js';
 
 const SCHEMA_ID = 'org.gnome.shell.extensions.service-pauser';
 const HELPER_INSTALL_PATH = '/usr/local/bin/service-pauser-helper';
@@ -101,40 +102,6 @@ const FOLDERSIZE_TARGET_PRESET = {
     own_toggle_key: 'show-quick-settings',
     install_url: 'https://github.com/shell-extensions/foldersize/releases',
 };
-
-// Mirrors extension.js: schemas compiled only inside another extension's
-// own directory aren't found by SettingsSchemaSource.get_default(), so fall
-// back to the two locations GNOME Shell installs/loads extensions from.
-const EXTENSION_SEARCH_DIRS = [
-    GLib.build_filenamev([GLib.get_home_dir(), '.local', 'share', 'gnome-shell', 'extensions']),
-    '/usr/share/gnome-shell/extensions',
-];
-
-function lookupTargetSchema(defaultSource, schemaId, extensionUuid) {
-    const direct = defaultSource.lookup(schemaId, true);
-    if (direct || !extensionUuid) {
-        return direct;
-    }
-
-    for (const base of EXTENSION_SEARCH_DIRS) {
-        const schemaDir = GLib.build_filenamev([base, extensionUuid, 'schemas']);
-        if (!GLib.file_test(schemaDir, GLib.FileTest.IS_DIR)) {
-            continue;
-        }
-
-        try {
-            const layered = Gio.SettingsSchemaSource.new_from_directory(schemaDir, defaultSource, false);
-            const schema = layered.lookup(schemaId, true);
-            if (schema) {
-                return schema;
-            }
-        } catch (error) {
-            logError(error, `Service Pauser: failed to load schema dir ${schemaDir}`);
-        }
-    }
-
-    return null;
-}
 
 export default class ServicePauserPrefs extends ExtensionPreferences {
     fillPreferencesWindow(window) {
@@ -758,7 +725,7 @@ export default class ServicePauserPrefs extends ExtensionPreferences {
                 text: entry.extension_uuid || '',
             });
 
-            const pauseRow = new Adw.ActionRow({ title: this._('Turn off when pausing') });
+            const pauseRow = new Adw.ActionRow({ title: this._('Value while paused') });
             const pauseSwitch = new Gtk.Switch({ active: Boolean(entry.pause_value), valign: Gtk.Align.CENTER });
             pauseRow.add_suffix(pauseSwitch);
             pauseRow.activatable_widget = pauseSwitch;
@@ -845,6 +812,7 @@ export default class ServicePauserPrefs extends ExtensionPreferences {
         const errors = [];
         const entries = [];
         const usedIds = new Set();
+        const seenTargets = new Set();
 
         this._targetRows
             .filter(controls => controls.labelRow)
@@ -869,9 +837,19 @@ export default class ServicePauserPrefs extends ExtensionPreferences {
                     errors.push(`${this._('Key is required')}: ${rowName}`);
                 }
 
-                if (!label || !schemaId || !key) {
+                const targetIdentity = `${schemaId}\u0000${key}`;
+                if (schemaId && key && seenTargets.has(targetIdentity)) {
+                    errors.push(`${this._('Duplicate schema/key')}: ${schemaId} / ${key}`);
+                }
+                if (key && ownToggleKey === key) {
+                    errors.push(`${this._('Own toggle key must differ from key')}: ${rowName}`);
+                }
+
+                if (!label || !schemaId || !key || seenTargets.has(targetIdentity) || ownToggleKey === key) {
                     return;
                 }
+
+                seenTargets.add(targetIdentity);
 
                 const id = this._targetId(controls.entry, schemaId, key, usedIds);
                 const entry = {

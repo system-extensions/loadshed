@@ -140,6 +140,10 @@ msgstr "Unbekannt"
 msgid "No service unit"
 msgstr "Keine Service-Unit"
 
+#: prefs.js:88
+msgid "No schema/key"
+msgstr "Kein Schema/Schlüssel"
+
 #: prefs.js:98
 msgid "General"
 msgstr "Allgemein"
@@ -438,9 +442,9 @@ msgstr "Eigenen Schalter-Schlüssel ausblenden (optional)"
 msgid "Extension UUID (optional, for non-system-wide schemas)"
 msgstr "Erweiterungs-UUID (optional, für nicht systemweit installierte Schemas)"
 
-#: prefs.js:722
-msgid "Turn off when pausing"
-msgstr "Beim Pausieren ausschalten"
+#: prefs.js:728
+msgid "Value while paused"
+msgstr "Wert während der Pause"
 
 #: prefs.js:737
 msgid "Get extension"
@@ -461,3 +465,11 @@ msgstr "Schema-ID ist erforderlich"
 #: prefs.js:827
 msgid "Key is required"
 msgstr "Schlüssel ist erforderlich"
+
+#: prefs.js:842
+msgid "Duplicate schema/key"
+msgstr "Schema/Schlüssel doppelt vorhanden"
+
+#: prefs.js:845
+msgid "Own toggle key must differ from key"
+msgstr "Eigener Schalter-Schlüssel muss sich vom Schlüssel unterscheiden"

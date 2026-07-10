@@ -65,6 +65,7 @@ def validate_entry(raw, index):
     service = raw.get("service")
     timer = raw.get("timer")
     optional = raw.get("optional", False)
+    enabled = raw.get("enabled", True)
 
     if not isinstance(entry_id, str) or not VALID_ID_RE.match(entry_id.strip()):
         raise ServicePauserError(f"invalid id in unit entry #{index + 1}")
@@ -74,6 +75,8 @@ def validate_entry(raw, index):
         raise ServicePauserError(f"invalid service in unit entry {entry_id}")
     if not isinstance(optional, bool):
         raise ServicePauserError(f"invalid optional flag in unit entry {entry_id}")
+    if not isinstance(enabled, bool):
+        raise ServicePauserError(f"invalid enabled flag in unit entry {entry_id}")
 
     entry_id = entry_id.strip()
     service = validate_unit_name(service.strip(), ".service")
@@ -88,6 +91,7 @@ def validate_entry(raw, index):
         "service": service,
         "timer": timer,
         "optional": optional,
+        "enabled": enabled,
     }
 
 
@@ -137,6 +141,8 @@ def serialize_units(units):
             entry["timer"] = unit["timer"]
         if unit.get("optional"):
             entry["optional"] = True
+        if unit.get("enabled") is False:
+            entry["enabled"] = False
         result.append(entry)
     return result
 
@@ -159,6 +165,14 @@ def config_payload(action, units):
         "entries": serialize_units(units),
         "errors": [],
     }
+
+
+def unit_enabled(unit):
+    return unit.get("enabled", True) is not False
+
+
+def enabled_units(units):
+    return [unit for unit in units if unit_enabled(unit)]
 
 
 def load_state():
@@ -253,6 +267,45 @@ def optional_service_missing(unit, managed_state=None):
     if not unit.get("optional") or managed_state:
         return False
     return not unit_loaded(show_unit(unit["service"]))
+
+
+def catalog_status_payload(units):
+    managed = load_state().get("entries", {})
+    entries = []
+    for unit in units:
+        managed_state = managed.get(unit["id"], {})
+        service_status = show_unit(unit["service"])
+        timer_status = show_unit(unit["timer"]) if unit.get("timer") else {}
+        service_loaded = unit_loaded(service_status)
+        timer_loaded = unit_loaded(timer_status) if unit.get("timer") else False
+        service_active = service_status.get("ActiveState") in ("active", "activating")
+        timer_active = timer_status.get("ActiveState") == "active"
+        managed_active = bool(managed_state.get("service_frozen") or managed_state.get("timer_stopped"))
+        available = service_loaded and (not unit.get("timer") or timer_loaded)
+
+        entries.append({
+            "id": unit["id"],
+            "label": unit["label"],
+            "service": unit["service"],
+            "timer": unit.get("timer"),
+            "optional": unit.get("optional", False),
+            "available": available,
+            "service_load_state": service_status.get("LoadState"),
+            "service_active_state": service_status.get("ActiveState"),
+            "service_active": service_active,
+            "timer_load_state": timer_status.get("LoadState"),
+            "timer_active_state": timer_status.get("ActiveState"),
+            "timer_active": timer_active,
+            "managed": managed_active,
+            "recommended_enabled": available and (managed_active or service_active or timer_active),
+        })
+
+    return {
+        "ok": True,
+        "action": "catalog-status",
+        "entries": entries,
+        "errors": [],
+    }
 
 
 def cgroup_file_from_status(status, filename):
@@ -400,30 +453,39 @@ def units_by_id(units):
 
 
 def state_unit_from_entry(entry_id, entry_state, configured):
-    if entry_id in configured:
-        return configured[entry_id]
-
-    service = validate_unit_name(entry_state.get("service"), ".service")
-    timer = entry_state.get("timer")
+    configured_unit = configured.get(entry_id, {})
+    service = entry_state.get("service", configured_unit.get("service"))
+    service = validate_unit_name(service, ".service")
+    timer = entry_state.get("timer", configured_unit.get("timer"))
     if timer is not None:
         timer = validate_unit_name(timer, ".timer")
 
     return {
         "id": entry_id,
-        "label": entry_id,
+        "label": configured_unit.get("label", entry_id),
         "service": service,
         "timer": timer,
+        "optional": configured_unit.get("optional", False),
+        "enabled": configured_unit.get("enabled", True),
     }
 
 
-def resume_units(units):
+def resume_units(units, entry_ids=None):
     state = load_state()
     entries = state.get("entries", {})
     configured = units_by_id(units)
-    remaining = {}
+    selected_ids = set(entries) if entry_ids is None else set(entry_ids)
+    remaining = {
+        entry_id: entry_state
+        for entry_id, entry_state in entries.items()
+        if entry_id not in selected_ids
+    }
     errors = []
 
     for entry_id, entry_state in entries.items():
+        if entry_id not in selected_ids:
+            continue
+
         try:
             unit = state_unit_from_entry(entry_id, entry_state, configured)
         except ServicePauserError as exc:
@@ -461,24 +523,52 @@ def resume_units(units):
     return errors
 
 
+def reconcile_config_state(old_units, new_units):
+    state_entries = load_state().get("entries", {})
+    if not state_entries:
+        return []
+
+    new_by_id = units_by_id(new_units)
+    stale_ids = []
+    for entry_id, entry_state in state_entries.items():
+        new_unit = new_by_id.get(entry_id)
+        if not new_unit or not unit_enabled(new_unit):
+            stale_ids.append(entry_id)
+            continue
+
+        if (
+            entry_state.get("service") != new_unit["service"] or
+            entry_state.get("timer") != new_unit.get("timer")
+        ):
+            stale_ids.append(entry_id)
+
+    if not stale_ids:
+        return []
+
+    return resume_units(old_units, stale_ids)
+
+
 def status_payload(units, action, errors=None):
     state = load_state()
     managed = state.get("entries", {})
+    configured = units_by_id(units)
+    active_units = enabled_units(units)
     entries = []
     seen = set()
 
-    for unit in units:
+    for unit in active_units:
         managed_state = managed.get(unit["id"])
         if optional_service_missing(unit, managed_state):
             continue
-        entries.append(status_entry(unit, managed_state))
+        status_unit = state_unit_from_entry(unit["id"], managed_state, configured) if managed_state else unit
+        entries.append(status_entry(status_unit, managed_state))
         seen.add(unit["id"])
 
     for entry_id, entry_state in managed.items():
         if entry_id in seen:
             continue
         try:
-            unit = state_unit_from_entry(entry_id, entry_state, {})
+            unit = state_unit_from_entry(entry_id, entry_state, configured)
             entries.append(status_entry(unit, entry_state))
         except ServicePauserError as exc:
             entries.append({
@@ -550,9 +640,9 @@ def status_entry(unit, managed_state):
 
 def main():
     action = sys.argv[1] if len(sys.argv) == 2 else None
-    valid_actions = {"status", "pause", "resume", "toggle", "enforce", "config-get", "config-set"}
+    valid_actions = {"status", "pause", "resume", "toggle", "enforce", "config-get", "config-set", "catalog-status"}
     if action not in valid_actions:
-        return fail("usage: service-pauser-helper status|pause|resume|toggle|enforce|config-get|config-set")
+        return fail("usage: service-pauser-helper status|pause|resume|toggle|enforce|config-get|config-set|catalog-status")
 
     try:
         require_root()
@@ -561,31 +651,58 @@ def main():
             json_print(config_payload(action, load_units()))
             return 0
 
+        if action == "catalog-status":
+            require_systemctl()
+            raw_catalog = sys.stdin.read()
+            units = validate_units(json.loads(raw_catalog)) if raw_catalog.strip() else load_units()
+            json_print(catalog_status_payload(units))
+            return 0
+
         if action == "config-set":
             raw_config = sys.stdin.read()
             if not raw_config.strip():
                 raise ServicePauserError("empty configuration")
+            old_units = load_units()
             units = validate_units(json.loads(raw_config))
+            require_systemctl()
+            was_paused = bool(load_state().get("entries"))
+            errors = reconcile_config_state(old_units, units)
+            if errors:
+                if was_paused:
+                    errors.extend(pause_units(enabled_units(old_units)))
+                payload = config_payload(action, old_units)
+                payload["ok"] = False
+                payload["errors"] = errors
+                json_print(payload)
+                return 1
+
             save_units_config(units)
-            json_print(config_payload(action, units))
-            return 0
+            if was_paused:
+                errors = pause_units(enabled_units(units))
+
+            payload = config_payload(action, units)
+            payload["ok"] = not errors
+            payload["errors"] = errors
+            json_print(payload)
+            return 0 if payload["ok"] else 1
 
         require_systemctl()
         units = load_units()
+        active_units = enabled_units(units)
 
         errors = []
         if action == "pause":
-            errors = pause_units(units)
+            errors = pause_units(active_units)
         elif action == "resume":
             errors = resume_units(units)
         elif action == "enforce":
-            errors = enforce_units(units)
+            errors = enforce_units(active_units)
         elif action == "toggle":
             if load_state().get("entries"):
                 errors = resume_units(units)
                 action = "resume"
             else:
-                errors = pause_units(units)
+                errors = pause_units(active_units)
                 action = "pause"
 
         payload = status_payload(units, action, errors)

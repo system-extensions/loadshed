@@ -7,181 +7,13 @@ import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 import * as QuickSettings from 'resource:///org/gnome/shell/ui/quickSettings.js';
 import { Extension, gettext as _, ngettext } from 'resource:///org/gnome/shell/extensions/extension.js';
+import { GSettingsTargets } from './gsettingsTargets.js';
 
 const HELPER_INSTALL_PATH = '/usr/local/bin/service-pauser-helper';
 const DEFAULT_REFRESH_INTERVAL = 10;
-const TARGETS_SETTINGS_KEY = 'gsettings-targets';
-// Schemas compiled only inside another extension's own directory (the
-// common case — most extensions don't install schemas system-wide) aren't
-// found by Gio.SettingsSchemaSource.get_default(). Mirror the two locations
-// GNOME Shell itself installs/loads extensions from as a fallback.
-const EXTENSION_SEARCH_DIRS = [
-    GLib.build_filenamev([GLib.get_home_dir(), '.local', 'share', 'gnome-shell', 'extensions']),
-    '/usr/share/gnome-shell/extensions',
-];
 
 function formatCountLabel(label, count) {
     return label.replace('%d', String(count));
-}
-
-function lookupTargetSchema(defaultSource, schemaId, extensionUuid) {
-    const direct = defaultSource.lookup(schemaId, true);
-    if (direct || !extensionUuid) {
-        return direct;
-    }
-
-    for (const base of EXTENSION_SEARCH_DIRS) {
-        const schemaDir = GLib.build_filenamev([base, extensionUuid, 'schemas']);
-        if (!GLib.file_test(schemaDir, GLib.FileTest.IS_DIR)) {
-            continue;
-        }
-
-        try {
-            const layered = Gio.SettingsSchemaSource.new_from_directory(schemaDir, defaultSource, false);
-            const schema = layered.lookup(schemaId, true);
-            if (schema) {
-                return schema;
-            }
-        } catch (error) {
-            logError(error, `Service Pauser: failed to load schema dir ${schemaDir}`);
-        }
-    }
-
-    return null;
-}
-
-/**
- * Bridges the pause button to arbitrary GSettings booleans (e.g. the
- * foldersize `auto-scan` switch) for background work that isn't a systemd
- * unit. Schema/key lookups are resolved defensively: constructing
- * Gio.Settings for an unknown schema id aborts the whole process, so every
- * schema is looked up via Gio.SettingsSchemaSource first and the entry is
- * skipped silently (not paused, no crash) if it isn't installed.
- */
-class GSettingsTargets {
-    constructor(settings) {
-        this._settings = settings;
-        this._resolved = [];
-        this._load();
-    }
-
-    reload() {
-        this._load();
-    }
-
-    _load() {
-        this._resolved = [];
-
-        let entries = [];
-        try {
-            const raw = this._settings.get_string(TARGETS_SETTINGS_KEY);
-            const parsed = JSON.parse(raw);
-            if (Array.isArray(parsed)) {
-                entries = parsed;
-            }
-        } catch (error) {
-            logError(error, 'Service Pauser: failed to parse gsettings-targets');
-        }
-
-        const schemaSource = Gio.SettingsSchemaSource.get_default();
-
-        entries.forEach(entry => {
-            if (!entry || typeof entry !== 'object' || !entry.schema || !entry.key) {
-                return;
-            }
-
-            const gsettings = this._resolveBoolSetting(schemaSource, entry.schema, entry.key, entry.extension_uuid);
-            if (!gsettings) {
-                return;
-            }
-
-            let ownToggle = null;
-            if (entry.own_toggle_key) {
-                ownToggle = this._resolveBoolSetting(schemaSource, entry.schema, entry.own_toggle_key, entry.extension_uuid);
-            }
-
-            this._resolved.push({ entry, gsettings, ownToggle });
-        });
-    }
-
-    _resolveBoolSetting(schemaSource, schemaId, key, extensionUuid) {
-        try {
-            const schema = lookupTargetSchema(schemaSource, schemaId, extensionUuid);
-            if (!schema || !schema.has_key(key)) {
-                return null;
-            }
-
-            if (schema.get_key(key).get_value_type().dup_string() !== 'b') {
-                return null;
-            }
-
-            return new Gio.Settings({ settingsSchema: schema });
-        } catch (error) {
-            logError(error, `Service Pauser: failed to resolve ${schemaId}::${key}`);
-            return null;
-        }
-    }
-
-    _activeResolved() {
-        return this._resolved.filter(item => item.entry.enabled !== false);
-    }
-
-    applyPause() {
-        this._setPaused(true);
-    }
-
-    applyResume() {
-        this._setPaused(false);
-    }
-
-    enforce() {
-        // Called periodically while the pause button stays checked, so a
-        // target flipped back on by something else gets re-paused.
-        this._setPaused(true);
-    }
-
-    _setPaused(paused) {
-        this._activeResolved().forEach(item => {
-            const pauseValue = Boolean(item.entry.pause_value);
-            const value = paused ? pauseValue : !pauseValue;
-            item.gsettings.set_boolean(item.entry.key, value);
-        });
-    }
-
-    hideOwnToggles() {
-        this._activeResolved().forEach(item => {
-            if (item.ownToggle) {
-                item.ownToggle.set_boolean(item.entry.own_toggle_key, false);
-            }
-        });
-    }
-
-    restoreOwnToggles() {
-        this._resolved.forEach(item => {
-            if (item.ownToggle) {
-                item.ownToggle.set_boolean(item.entry.own_toggle_key, true);
-            }
-        });
-    }
-
-    status() {
-        return this._activeResolved().map(item => {
-            let running = false;
-            try {
-                running = item.gsettings.get_boolean(item.entry.key) !== Boolean(item.entry.pause_value);
-            } catch (error) {
-                running = false;
-            }
-
-            return {
-                id: item.entry.id,
-                label: item.entry.label || item.entry.id,
-                service_active: running,
-                paused: !running,
-                service_frozen: false,
-            };
-        });
-    }
 }
 
 class ServicePauserManager {
@@ -189,8 +21,8 @@ class ServicePauserManager {
         this._targets = new GSettingsTargets(settings);
     }
 
-    reloadTargets() {
-        this._targets.reload();
+    reloadTargets(pauseActive) {
+        this._targets.reload(pauseActive);
     }
 
     applyPause() {
@@ -449,17 +281,18 @@ class ServicePauserToggle extends QuickSettings.QuickMenuToggle {
 
     _applyStatus(status) {
         const helperEntries = Array.isArray(status.entries) ? status.entries : [];
-        const targetEntries = this._manager.targetsStatus();
+        const helperPaused = Boolean(status.paused);
+        let targetEntries = this._manager.targetsStatus();
+        const targetManaged = targetEntries.some(entry => entry.managed);
+        if (helperPaused || targetManaged) {
+            this._manager.enforceTargets();
+            targetEntries = this._manager.targetsStatus();
+        }
         const entries = helperEntries.concat(targetEntries);
 
-        const pausedCount = Number(status.paused_count || 0) + targetEntries.filter(entry => entry.paused).length;
+        const pausedCount = Number(status.paused_count || 0) + targetEntries.filter(entry => entry.managed).length;
         const runningCount = Number(status.running_count || 0) + targetEntries.filter(entry => !entry.paused).length;
-        // With real systemd services configured, trust the helper's own
-        // "paused" flag. With none (targets only, or nothing at all),
-        // derive it from the combined entries instead.
-        const paused = helperEntries.length > 0
-            ? Boolean(status.paused)
-            : entries.length > 0 && entries.every(entry => entry.paused);
+        const paused = helperPaused || targetEntries.some(entry => entry.managed);
 
         this.checked = paused;
         this._indicator.visible = paused;
@@ -553,7 +386,7 @@ class ServicePauserToggle extends QuickSettings.QuickMenuToggle {
     }
 
     _entryPaused(entry) {
-        return Boolean(entry.paused || entry.service_frozen);
+        return Boolean(entry.paused || entry.managed || entry.service_frozen);
     }
 
     _hiddenEntriesLabel(entries) {
@@ -614,6 +447,10 @@ class ServicePauserIndicator extends QuickSettings.SystemIndicator {
         Main.panel.statusArea.quickSettings.addExternalIndicator(this);
     }
 
+    get paused() {
+        return Boolean(this._toggle?.checked);
+    }
+
     destroy() {
         this.quickSettingsItems.forEach(item => item.destroy());
         super.destroy();
@@ -638,9 +475,8 @@ export default class ServicePauserExtension extends Extension {
         this._manager.hideOwnToggles();
 
         this._targetsSignalId = this._settings.connect('changed::gsettings-targets', () => {
-            this._manager.restoreOwnToggles();
-            this._manager.reloadTargets();
-            this._manager.hideOwnToggles();
+            const pauseActive = Boolean(this._indicator?.paused);
+            this._manager.reloadTargets(pauseActive);
         });
 
         this._indicator = new ServicePauserIndicator(this, this._manager);

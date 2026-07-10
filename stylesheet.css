@@ -1,0 +1,19 @@
+.service-pauser-entry {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  min-height: 0;
+}
+
+.service-pauser-entry-content {
+  spacing: 6px;
+  min-height: 0;
+}
+
+.service-pauser-entry-icon {
+  icon-size: 1em;
+}
+
+.service-pauser-entry-label {
+  padding-top: 0;
+  padding-bottom: 0;
+}

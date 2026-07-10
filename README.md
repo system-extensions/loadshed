@@ -32,7 +32,9 @@ gnome-extensions enable service-pauser@yurij.de
 Open the extension preferences in GNOME Extensions to add, remove, save, reload,
 or restore the built-in maintenance catalog. The default catalog is installed only
 when `/etc/service-pauser/units.json` does not already exist; updates keep your
-existing configuration.
+existing configuration. Each service can be enabled or disabled independently.
+Disabling or replacing a service while the pause button is active releases only
+that service; the other managed services remain paused.
 
 Run `./install.sh` after updating the extension so the helper and sudoers rules
 include the configuration and enforce commands.
@@ -49,7 +51,8 @@ visible in the menu. Entry format:
     "label": "AIDE daily check",
     "service": "dailyaidecheck.service",
     "timer": "dailyaidecheck.timer",
-    "optional": true
+    "optional": true,
+    "enabled": true
   }
 ]
 ```
@@ -69,6 +72,12 @@ exists and is boolean) before being used, and unavailable ones are skipped
 silently rather than breaking the extension. A Folder Size preset ships
 out of the box and can be restored with one click if removed.
 
+Before changing a managed boolean, Service Pauser records its current value.
+Resume restores that exact value instead of assuming the opposite of the pause
+value. The saved state also survives a GNOME Shell restart. The same rule applies
+to another extension's Quick Settings visibility: a toggle that was already
+hidden remains hidden after Service Pauser stops managing it.
+
 Most extensions compile their schema only inside their own extension
 directory rather than installing it system-wide, so it won't be found by
 plain schema lookup. If that happens ("Schema not installed" in
@@ -81,7 +90,7 @@ If an entry's target extension also has its own Quick Settings toggle (like
 Folder Size's "Scan on/off"), that toggle becomes redundant once Service
 Pauser manages it — set as `own_toggle_key`, it gets hidden automatically
 while managed here and reappears once you disable the switch or Service
-Pauser itself.
+Pauser itself, provided it was visible before Service Pauser took control.
 
 ## Manual Recovery
 

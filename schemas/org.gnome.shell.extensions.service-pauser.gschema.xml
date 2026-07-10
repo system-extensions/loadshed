@@ -21,5 +21,10 @@
       <summary>GSettings switches to pause alongside services</summary>
       <description>JSON list of GSettings targets (schema, key, pause value) toggled together with the pause button, in addition to systemd units. Each entry may also hide its own extension's Quick Settings toggle while managed here.</description>
     </key>
+    <key name="gsettings-runtime-state" type="s">
+      <default>'{"paused":{},"hidden":{}}'</default>
+      <summary>Saved values for managed GSettings switches</summary>
+      <description>Internal state used to restore GSettings switches to the values they had before Service Pauser changed them.</description>
+    </key>
   </schema>
 </schemalist>

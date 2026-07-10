@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.example.service-pauser-target" path="/org/example/service-pauser-target/">
+    <key name="active" type="b">
+      <default>true</default>
+    </key>
+    <key name="show-toggle" type="b">
+      <default>true</default>
+    </key>
+  </schema>
+</schemalist>
