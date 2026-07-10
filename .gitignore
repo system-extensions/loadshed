@@ -1,5 +1,6 @@
 *.mo
 *.shell-extension.zip
+*~
 __pycache__/
 locale/
 schemas/gschemas.compiled

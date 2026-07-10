@@ -182,9 +182,10 @@ class ServicePauserToggle extends QuickSettings.QuickMenuToggle {
             return;
         }
 
+        const action = this.checked ? 'enforce' : 'status';
         this._busy = true;
         this.subtitle = _('Refreshing');
-        this._manager.run('status')
+        this._manager.run(action)
             .then(status => this._applyStatus(status))
             .catch(error => this._handleError(error))
             .finally(() => {

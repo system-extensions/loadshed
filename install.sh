@@ -84,7 +84,7 @@ else
 fi
 
 sudo tee "${SUDOERS_FILE}" >/dev/null <<EOF
-Cmnd_Alias SERVICE_PAUSER = ${HELPER_INSTALL_PATH} status, ${HELPER_INSTALL_PATH} pause, ${HELPER_INSTALL_PATH} resume, ${HELPER_INSTALL_PATH} toggle
+Cmnd_Alias SERVICE_PAUSER = ${HELPER_INSTALL_PATH} status, ${HELPER_INSTALL_PATH} pause, ${HELPER_INSTALL_PATH} resume, ${HELPER_INSTALL_PATH} toggle, ${HELPER_INSTALL_PATH} enforce, ${HELPER_INSTALL_PATH} config-get, ${HELPER_INSTALL_PATH} config-set
 ${target_user} ALL=(root) NOPASSWD: SERVICE_PAUSER
 EOF
 

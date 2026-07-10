@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: service-pauser 1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-10 10:35+0200\n"
+"POT-Creation-Date: 2026-07-10 11:07+0200\n"
 "PO-Revision-Date: 2026-07-10 10:35+0200\n"
 "Last-Translator: \n"
 "Language-Team: German\n"
@@ -12,48 +12,67 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+#: extension.js:60
+msgid "Helper command failed"
+msgstr "Helper-Befehl fehlgeschlagen"
+
+#: extension.js:100 extension.js:114
 msgid "Stop Load"
 msgstr "Last Stop"
 
+#: extension.js:101
 msgid "Loading"
 msgstr "Lädt"
 
+#: extension.js:114
 msgid "Background services"
 msgstr "Hintergrunddienste"
 
+#: extension.js:118
 msgid "Refresh"
 msgstr "Aktualisieren"
 
+#: extension.js:119
 msgid "Resume managed services"
 msgstr "Verwaltete Dienste fortsetzen"
 
+#: extension.js:120
 msgid "Setup help"
 msgstr "Einrichtungshilfe"
 
+#: extension.js:187
 msgid "Refreshing"
 msgstr "Aktualisiert"
 
+#: extension.js:202
 msgid "Pausing"
 msgstr "Pausiert"
 
+#: extension.js:202
 msgid "Resuming"
 msgstr "Läuft"
 
+#: extension.js:220 prefs.js:203 prefs.js:227
 msgid "Unknown error"
 msgstr "Unbekannter Fehler"
 
+#: extension.js:222 prefs.js:203
 msgid "Setup required"
 msgstr "Einrichtung erforderlich"
 
+#: extension.js:227
 msgid "Error"
 msgstr "Fehler"
 
+#: extension.js:228 extension.js:259
 msgid "Service Pauser"
 msgstr "Service Pauser"
 
+#: extension.js:233
 msgid "Service Pauser setup required"
 msgstr "Service Pauser Einrichtung erforderlich"
 
+#: extension.js:234
 msgid ""
 "Run install.sh from the extension directory, then reload GNOME Shell or re-"
 "enable the extension."
@@ -61,75 +80,228 @@ msgstr ""
 "Führe install.sh aus dem Erweiterungsordner aus, lade GNOME Shell neu oder "
 "aktiviere die Erweiterung erneut."
 
+#: extension.js:248 prefs.js:282
 msgid "No services configured"
 msgstr "Keine Dienste konfiguriert"
 
+#: extension.js:250
+#, javascript-format
 msgid "1 paused"
 msgid_plural "%d paused"
 msgstr[0] "1 pausiert"
 msgstr[1] "%d pausiert"
 
+#: extension.js:252
+#, javascript-format
 msgid "1 running"
 msgid_plural "%d running"
 msgstr[0] "1 läuft"
 msgstr[1] "%d laufen"
 
+#: extension.js:254
 msgid "Nothing running"
 msgstr "Nichts läuft"
 
+#: extension.js:258
 msgid "Partial error"
 msgstr "Teilweise Fehler"
 
+#: extension.js:289
 msgid "Unknown"
 msgstr "Unbekannt"
 
+#: extension.js:329
 msgid "Service frozen, timer stopped"
 msgstr "Dienst eingefroren, Timer gestoppt"
 
+#: extension.js:332
 msgid "Service frozen"
 msgstr "Dienst eingefroren"
 
+#: extension.js:335
 msgid "Timer stopped"
 msgstr "Timer gestoppt"
 
+#: extension.js:337
 msgid "Paused"
 msgstr "Pausiert"
 
+#: extension.js:340
 msgid "Frozen externally"
 msgstr "Extern eingefroren"
 
+#: extension.js:343
 msgid "Running"
 msgstr "Läuft"
 
+#: extension.js:346
 msgid "Timer active"
 msgstr "Timer aktiv"
 
+#: extension.js:349
 msgid "Not loaded"
 msgstr "Nicht geladen"
 
+#: extension.js:351
 msgid "Inactive"
 msgstr "Inaktiv"
 
-msgid "Helper command failed"
-msgstr "Helper-Befehl fehlgeschlagen"
+#: prefs.js:75
+msgid "No service unit"
+msgstr "Keine Service-Unit"
 
+#: prefs.js:98
 msgid "General"
 msgstr "Allgemein"
 
+#: prefs.js:101
 msgid "Show Quick Settings toggle"
 msgstr "Schalter in Schnelleinstellungen anzeigen"
 
+#: prefs.js:102
 msgid "Resume on extension disable"
 msgstr "Beim Deaktivieren der Erweiterung fortsetzen"
 
+#: prefs.js:103
 msgid "Refresh interval (s)"
 msgstr "Aktualisierungsintervall (s)"
 
+#: prefs.js:106 prefs.js:124
+msgid "Services"
+msgstr "Dienste"
+
+#: prefs.js:107
+msgid "Edit background maintenance services managed by Service Pauser."
+msgstr "Bearbeite von Service Pauser verwaltete Hintergrund-Wartungsdienste."
+
+#: prefs.js:112 prefs.js:194
+msgid "Loading services"
+msgstr "Dienste werden geladen"
+
+#: prefs.js:118
+msgid "Configured services"
+msgstr "Konfigurierte Dienste"
+
+#: prefs.js:121
 msgid "System files"
 msgstr "Systemdateien"
 
+#: prefs.js:123
 msgid "Helper"
 msgstr "Hilfsprogramm"
 
-msgid "Services"
-msgstr "Dienste"
+#: prefs.js:132
+msgid "Service configuration"
+msgstr "Dienstkonfiguration"
+
+#: prefs.js:133
+msgid "Changes are written through the privileged helper."
+msgstr "Änderungen werden über das privilegierte Hilfsprogramm geschrieben."
+
+#: prefs.js:141
+msgid "Add service"
+msgstr "Dienst hinzufügen"
+
+#: prefs.js:142
+msgid "Restore built-in catalog"
+msgstr "Eingebauten Katalog wiederherstellen"
+
+#: prefs.js:143
+msgid "Reload services"
+msgstr "Dienste neu laden"
+
+#: prefs.js:144
+msgid "Save services"
+msgstr "Dienste speichern"
+
+#: prefs.js:200
+msgid "Services loaded"
+msgstr "Dienste geladen"
+
+#: prefs.js:213
+msgid "Fix service entries"
+msgstr "Diensteinträge korrigieren"
+
+#: prefs.js:218
+msgid "Saving services"
+msgstr "Dienste werden gespeichert"
+
+#: prefs.js:224
+msgid "Service configuration saved"
+msgstr "Dienstkonfiguration gespeichert"
+
+#: prefs.js:227
+msgid "Save failed"
+msgstr "Speichern fehlgeschlagen"
+
+#: prefs.js:244
+msgid "Service added"
+msgstr "Dienst hinzugefügt"
+
+#: prefs.js:244
+msgid "Fill in the new row, then save."
+msgstr "Fülle die neue Zeile aus und speichere danach."
+
+#: prefs.js:250
+msgid "Service removed"
+msgstr "Dienst entfernt"
+
+#: prefs.js:250 prefs.js:270
+msgid "Save services to apply this change."
+msgstr "Speichere die Dienste, um diese Änderung anzuwenden."
+
+#: prefs.js:269
+msgid "Built-in catalog restored"
+msgstr "Eingebauter Katalog wiederhergestellt"
+
+#: prefs.js:270
+msgid "All built-in services are already listed."
+msgstr "Alle eingebauten Dienste sind bereits aufgeführt."
+
+#: prefs.js:283
+msgid "Add a service or restore the built-in catalog."
+msgstr "Füge einen Dienst hinzu oder stelle den eingebauten Katalog wieder her."
+
+#: prefs.js:292 prefs.js:319
+msgid "Unnamed service"
+msgstr "Unbenannter Dienst"
+
+#: prefs.js:296
+msgid "Label"
+msgstr "Beschriftung"
+
+#: prefs.js:300
+msgid "Service unit"
+msgstr "Service-Unit"
+
+#: prefs.js:304
+msgid "Timer unit (optional)"
+msgstr "Timer-Unit (optional)"
+
+#: prefs.js:307 prefs.js:308
+msgid "Remove service"
+msgstr "Dienst entfernen"
+
+#: prefs.js:359
+msgid "Service"
+msgstr "Dienst"
+
+#: prefs.js:365
+msgid "Label is required"
+msgstr "Beschriftung ist erforderlich"
+
+#: prefs.js:368
+msgid "Service unit is required"
+msgstr "Service-Unit ist erforderlich"
+
+#: prefs.js:370
+msgid "Service unit must end in .service"
+msgstr "Service-Unit muss auf .service enden"
+
+#: prefs.js:372
+msgid "Duplicate service unit"
+msgstr "Doppelte Service-Unit"
+
+#: prefs.js:375
+msgid "Timer unit must end in .timer"
+msgstr "Timer-Unit muss auf .timer enden"

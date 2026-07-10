@@ -3,6 +3,126 @@
     "id": "aide",
     "label": "AIDE daily check",
     "service": "dailyaidecheck.service",
-    "timer": "dailyaidecheck.timer"
+    "timer": "dailyaidecheck.timer",
+    "optional": true
+  },
+  {
+    "id": "apt-daily",
+    "label": "APT daily downloads",
+    "service": "apt-daily.service",
+    "timer": "apt-daily.timer",
+    "optional": true
+  },
+  {
+    "id": "apt-daily-upgrade",
+    "label": "APT daily upgrade",
+    "service": "apt-daily-upgrade.service",
+    "timer": "apt-daily-upgrade.timer",
+    "optional": true
+  },
+  {
+    "id": "dpkg-db-backup",
+    "label": "dpkg database backup",
+    "service": "dpkg-db-backup.service",
+    "timer": "dpkg-db-backup.timer",
+    "optional": true
+  },
+  {
+    "id": "man-db",
+    "label": "Manual database update",
+    "service": "man-db.service",
+    "timer": "man-db.timer",
+    "optional": true
+  },
+  {
+    "id": "plocate-updatedb",
+    "label": "File search index update",
+    "service": "plocate-updatedb.service",
+    "timer": "plocate-updatedb.timer",
+    "optional": true
+  },
+  {
+    "id": "fstrim",
+    "label": "Filesystem trim",
+    "service": "fstrim.service",
+    "timer": "fstrim.timer",
+    "optional": true
+  },
+  {
+    "id": "e2scrub-all",
+    "label": "ext4 metadata check",
+    "service": "e2scrub_all.service",
+    "timer": "e2scrub_all.timer",
+    "optional": true
+  },
+  {
+    "id": "fwupd-refresh",
+    "label": "Firmware metadata refresh",
+    "service": "fwupd-refresh.service",
+    "timer": "fwupd-refresh.timer",
+    "optional": true
+  },
+  {
+    "id": "logrotate",
+    "label": "Log rotation",
+    "service": "logrotate.service",
+    "timer": "logrotate.timer",
+    "optional": true
+  },
+  {
+    "id": "lynis",
+    "label": "Lynis security audit",
+    "service": "lynis.service",
+    "timer": "lynis.timer",
+    "optional": true
+  },
+  {
+    "id": "sysstat-collect",
+    "label": "System activity collection",
+    "service": "sysstat-collect.service",
+    "timer": "sysstat-collect.timer",
+    "optional": true
+  },
+  {
+    "id": "sysstat-summary",
+    "label": "System activity summary",
+    "service": "sysstat-summary.service",
+    "timer": "sysstat-summary.timer",
+    "optional": true
+  },
+  {
+    "id": "systemd-tmpfiles-clean",
+    "label": "Temporary files cleanup",
+    "service": "systemd-tmpfiles-clean.service",
+    "timer": "systemd-tmpfiles-clean.timer",
+    "optional": true
+  },
+  {
+    "id": "update-notifier-download",
+    "label": "Update notifier downloads",
+    "service": "update-notifier-download.service",
+    "timer": "update-notifier-download.timer",
+    "optional": true
+  },
+  {
+    "id": "update-notifier-motd",
+    "label": "Update notifier MOTD",
+    "service": "update-notifier-motd.service",
+    "timer": "update-notifier-motd.timer",
+    "optional": true
+  },
+  {
+    "id": "ubuntu-pro-timer",
+    "label": "Ubuntu Pro background jobs",
+    "service": "ua-timer.service",
+    "timer": "ua-timer.timer",
+    "optional": true
+  },
+  {
+    "id": "snap-repair",
+    "label": "Snap repair jobs",
+    "service": "snapd.snap-repair.service",
+    "timer": "snapd.snap-repair.timer",
+    "optional": true
   }
 ]

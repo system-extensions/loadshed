@@ -8,7 +8,8 @@ import subprocess
 import sys
 import time
 
-CONFIG_PATH = "/etc/service-pauser/units.json"
+CONFIG_DIR = "/etc/service-pauser"
+CONFIG_PATH = f"{CONFIG_DIR}/units.json"
 STATE_DIR = "/run/service-pauser"
 STATE_PATH = f"{STATE_DIR}/state.json"
 CGROUP_ROOT = "/sys/fs/cgroup"
@@ -63,13 +64,21 @@ def validate_entry(raw, index):
     label = raw.get("label")
     service = raw.get("service")
     timer = raw.get("timer")
+    optional = raw.get("optional", False)
 
-    if not isinstance(entry_id, str) or not VALID_ID_RE.match(entry_id):
+    if not isinstance(entry_id, str) or not VALID_ID_RE.match(entry_id.strip()):
         raise ServicePauserError(f"invalid id in unit entry #{index + 1}")
     if not isinstance(label, str) or not label.strip():
         raise ServicePauserError(f"invalid label in unit entry {entry_id}")
+    if not isinstance(service, str):
+        raise ServicePauserError(f"invalid service in unit entry {entry_id}")
+    if not isinstance(optional, bool):
+        raise ServicePauserError(f"invalid optional flag in unit entry {entry_id}")
 
-    service = validate_unit_name(service, ".service")
+    entry_id = entry_id.strip()
+    service = validate_unit_name(service.strip(), ".service")
+    if isinstance(timer, str):
+        timer = timer.strip() or None
     if timer is not None:
         timer = validate_unit_name(timer, ".timer")
 
@@ -78,7 +87,25 @@ def validate_entry(raw, index):
         "label": label.strip(),
         "service": service,
         "timer": timer,
+        "optional": optional,
     }
+
+
+def validate_units(raw_units):
+    if not isinstance(raw_units, list):
+        raise ServicePauserError("configuration root must be a JSON list")
+
+    units = [validate_entry(raw, index) for index, raw in enumerate(raw_units)]
+    seen_ids = set()
+    seen_services = set()
+    for unit in units:
+        if unit["id"] in seen_ids:
+            raise ServicePauserError(f"duplicate unit id: {unit['id']}")
+        if unit["service"] in seen_services:
+            raise ServicePauserError(f"duplicate service unit: {unit['service']}")
+        seen_ids.add(unit["id"])
+        seen_services.add(unit["service"])
+    return units
 
 
 def load_units():
@@ -95,16 +122,43 @@ def load_units():
     with open(CONFIG_PATH, "r", encoding="utf-8") as config_file:
         raw_units = json.load(config_file)
 
-    if not isinstance(raw_units, list):
-        raise ServicePauserError("configuration root must be a JSON list")
+    return validate_units(raw_units)
 
-    units = [validate_entry(raw, index) for index, raw in enumerate(raw_units)]
-    seen = set()
+
+def serialize_units(units):
+    result = []
     for unit in units:
-        if unit["id"] in seen:
-            raise ServicePauserError(f"duplicate unit id: {unit['id']}")
-        seen.add(unit["id"])
-    return units
+        entry = {
+            "id": unit["id"],
+            "label": unit["label"],
+            "service": unit["service"],
+        }
+        if unit.get("timer"):
+            entry["timer"] = unit["timer"]
+        if unit.get("optional"):
+            entry["optional"] = True
+        result.append(entry)
+    return result
+
+
+def save_units_config(units):
+    os.makedirs(CONFIG_DIR, mode=0o755, exist_ok=True)
+    tmp_path = f"{CONFIG_PATH}.tmp.{os.getpid()}"
+    with open(tmp_path, "w", encoding="utf-8") as config_file:
+        json.dump(serialize_units(units), config_file, indent=2, sort_keys=True)
+        config_file.write("\n")
+    os.chown(tmp_path, 0, 0)
+    os.chmod(tmp_path, 0o644)
+    os.replace(tmp_path, CONFIG_PATH)
+
+
+def config_payload(action, units):
+    return {
+        "ok": True,
+        "action": action,
+        "entries": serialize_units(units),
+        "errors": [],
+    }
 
 
 def load_state():
@@ -191,6 +245,16 @@ def is_active(unit):
     return show_unit(unit)["ActiveState"] in ("active", "activating")
 
 
+def unit_loaded(status):
+    return status.get("LoadState") == "loaded"
+
+
+def optional_service_missing(unit, managed_state=None):
+    if not unit.get("optional") or managed_state:
+        return False
+    return not unit_loaded(show_unit(unit["service"]))
+
+
 def cgroup_file_from_status(status, filename):
     control_group = status.get("ControlGroup")
     if not isinstance(control_group, str) or not control_group.startswith("/"):
@@ -275,6 +339,9 @@ def pause_units(units):
     errors = []
 
     for unit in units:
+        if optional_service_missing(unit, entries.get(unit["id"])):
+            continue
+
         entry_state = entries.get(unit["id"], {
             "service": unit["service"],
             "timer": unit.get("timer"),
@@ -284,20 +351,32 @@ def pause_units(units):
 
         try:
             timer = unit.get("timer")
-            if timer and not entry_state.get("timer_stopped") and is_active(timer):
-                systemctl(["stop", timer], check=True)
-                entry_state["timer_stopped"] = True
+            if timer:
+                timer_status = show_unit(timer)
+                if not unit_loaded(timer_status) and not unit.get("optional"):
+                    raise ServicePauserError(f"timer not loaded: {timer}")
+                if unit_loaded(timer_status) and not entry_state.get("timer_stopped") and timer_status["ActiveState"] == "active":
+                    systemctl(["stop", timer], check=True)
+                    entry_state["timer_stopped"] = True
 
             service_status = show_unit(unit["service"], include_freezer=True, extra_properties=["ControlGroup"])
+            if not unit_loaded(service_status):
+                if unit.get("optional"):
+                    continue
+                raise ServicePauserError(f"service not loaded: {unit['service']}")
+
             service_active = service_status["ActiveState"] in ("active", "activating")
             service_frozen = (
                 service_status.get("FreezerState") == "frozen" or
                 cgroup_frozen_from_status(service_status)
             )
 
-            if service_active and not service_frozen and not entry_state.get("service_frozen"):
+            if service_active and not service_frozen:
                 entry_state["freeze_method"] = freeze_service(unit["service"])
                 entry_state["service_frozen"] = True
+            elif not service_active and not service_frozen and entry_state.get("service_frozen"):
+                entry_state["service_frozen"] = False
+                entry_state.pop("freeze_method", None)
         except ServicePauserError as exc:
             errors.append(f"{unit['label']}: {exc}")
 
@@ -308,6 +387,12 @@ def pause_units(units):
 
     save_state(state)
     return errors
+
+
+def enforce_units(units):
+    if not load_state().get("entries"):
+        return []
+    return pause_units(units)
 
 
 def units_by_id(units):
@@ -383,7 +468,10 @@ def status_payload(units, action, errors=None):
     seen = set()
 
     for unit in units:
-        entries.append(status_entry(unit, managed.get(unit["id"])))
+        managed_state = managed.get(unit["id"])
+        if optional_service_missing(unit, managed_state):
+            continue
+        entries.append(status_entry(unit, managed_state))
         seen.add(unit["id"])
 
     for entry_id, entry_state in managed.items():
@@ -422,6 +510,12 @@ def status_entry(unit, managed_state):
     service_status = show_unit(unit["service"], include_freezer=True, extra_properties=["ControlGroup"])
     timer_status = show_unit(unit["timer"]) if unit.get("timer") else {}
     managed_state = managed_state or {}
+    error = None
+    if not unit_loaded(service_status):
+        error = f"service not loaded: {unit['service']}"
+    elif unit.get("timer") and not unit.get("optional") and not unit_loaded(timer_status):
+        error = f"timer not loaded: {unit['timer']}"
+
     service_active = service_status["ActiveState"] in ("active", "activating")
     cgroup_frozen = cgroup_frozen_from_status(service_status)
     service_frozen = service_status.get("FreezerState") == "frozen" or cgroup_frozen
@@ -433,6 +527,7 @@ def status_entry(unit, managed_state):
         "label": unit["label"],
         "service": unit["service"],
         "timer": unit.get("timer"),
+        "optional": unit.get("optional", False),
         "service_load_state": service_status.get("LoadState"),
         "service_active_state": service_status.get("ActiveState"),
         "service_sub_state": service_status.get("SubState"),
@@ -449,16 +544,32 @@ def status_entry(unit, managed_state):
         "managed_timer_stopped": bool(managed_state.get("timer_stopped")),
         "freeze_method": managed_state.get("freeze_method"),
         "external_frozen": service_frozen and not managed_state.get("service_frozen"),
+        "error": error,
     }
 
 
 def main():
     action = sys.argv[1] if len(sys.argv) == 2 else None
-    if action not in {"status", "pause", "resume", "toggle"}:
-        return fail("usage: service-pauser-helper status|pause|resume|toggle")
+    valid_actions = {"status", "pause", "resume", "toggle", "enforce", "config-get", "config-set"}
+    if action not in valid_actions:
+        return fail("usage: service-pauser-helper status|pause|resume|toggle|enforce|config-get|config-set")
 
     try:
         require_root()
+
+        if action == "config-get":
+            json_print(config_payload(action, load_units()))
+            return 0
+
+        if action == "config-set":
+            raw_config = sys.stdin.read()
+            if not raw_config.strip():
+                raise ServicePauserError("empty configuration")
+            units = validate_units(json.loads(raw_config))
+            save_units_config(units)
+            json_print(config_payload(action, units))
+            return 0
+
         require_systemctl()
         units = load_units()
 
@@ -467,6 +578,8 @@ def main():
             errors = pause_units(units)
         elif action == "resume":
             errors = resume_units(units)
+        elif action == "enforce":
+            errors = enforce_units(units)
         elif action == "toggle":
             if load_state().get("entries"):
                 errors = resume_units(units)
