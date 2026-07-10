@@ -12,12 +12,14 @@ services that start later.
 ## Install
 
 ```bash
-cd /home/yurij/web/git/service-pauser@yurij.de
-glib-compile-schemas schemas
-gnome-extensions pack . --force --podir=po --gettext-domain=service-pauser --extra-source=install.sh --extra-source=README.md --extra-source=tools -o /tmp
-gnome-extensions install -f /tmp/service-pauser@yurij.de.shell-extension.zip
+git clone https://github.com/shell-extensions/service-pauser
+cd service-pauser
 ./install.sh
 ```
+
+`install.sh` compiles the schemas, packs the extension bundle, installs it with
+`gnome-extensions install -f`, and sets up the privileged helper, configuration, and
+sudoers rule in one step.
 
 Log out and back in, then enable:
 
@@ -51,6 +53,35 @@ visible in the menu. Entry format:
   }
 ]
 ```
+
+## GSettings switches
+
+Not everything worth pausing is a systemd unit. The [Folder Size](https://github.com/shell-extensions/foldersize)
+extension, for example, scans folder sizes in Nautilus and is controlled by a
+plain GSettings boolean (`auto-scan`) instead. For cases like this, Service
+Pauser can also toggle arbitrary GSettings booleans together with the pause
+button — no root or helper involved, since these are user-session settings.
+
+This is configured in Preferences under "GSettings switches", separately from
+the systemd service list. Each entry has a schema id, a key, and the value the
+key should hold while paused; entries are validated (schema installed, key
+exists and is boolean) before being used, and unavailable ones are skipped
+silently rather than breaking the extension. A Folder Size preset ships
+out of the box and can be restored with one click if removed.
+
+Most extensions compile their schema only inside their own extension
+directory rather than installing it system-wide, so it won't be found by
+plain schema lookup. If that happens ("Schema not installed" in
+Preferences even though the extension is installed), set the entry's
+"Extension UUID" field (e.g. `foldersize@yurij.de`) — Service Pauser then
+also looks in that extension's own `schemas/` directory, the same way GNOME
+Shell resolves an extension's own settings.
+
+If an entry's target extension also has its own Quick Settings toggle (like
+Folder Size's "Scan on/off"), that toggle becomes redundant once Service
+Pauser manages it — set as `own_toggle_key`, it gets hidden automatically
+while managed here and reappears once you disable the switch or Service
+Pauser itself.
 
 ## Manual Recovery
 

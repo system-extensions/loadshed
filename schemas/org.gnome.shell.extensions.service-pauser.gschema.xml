@@ -16,5 +16,10 @@
       <summary>Status refresh interval</summary>
       <description>How often the extension refreshes service status, in seconds.</description>
     </key>
+    <key name="gsettings-targets" type="s">
+      <default>'[{"id":"foldersize","label":"Folder size scan","schema":"org.gnome.shell.extensions.foldersize","extension_uuid":"foldersize@yurij.de","key":"auto-scan","pause_value":false,"enabled":true,"own_toggle_key":"show-quick-settings","install_url":"https://github.com/shell-extensions/foldersize/releases"}]'</default>
+      <summary>GSettings switches to pause alongside services</summary>
+      <description>JSON list of GSettings targets (schema, key, pause value) toggled together with the pause button, in addition to systemd units. Each entry may also hide its own extension's Quick Settings toggle while managed here.</description>
+    </key>
   </schema>
 </schemalist>

@@ -106,45 +106,35 @@ msgstr "Nichts läuft"
 msgid "Partial error"
 msgstr "Teilweise Fehler"
 
+#: extension.js:337
+#, javascript-format
+msgid "1 service paused"
+msgid_plural "%d services paused"
+msgstr[0] "1 Dienst pausiert"
+msgstr[1] "%d Dienste pausiert"
+
+#: extension.js:341
+#, javascript-format
+msgid "1 service released"
+msgid_plural "%d services released"
+msgstr[0] "1 Dienst freigegeben"
+msgstr[1] "%d Dienste freigegeben"
+
+#: extension.js:345
+#, javascript-format
+msgid "1 released"
+msgid_plural "%d released"
+msgstr[0] "1 freigegeben"
+msgstr[1] "%d freigegeben"
+
+#: extension.js:346
+#, javascript-format
+msgid "%s, %s"
+msgstr "%s, %s"
+
 #: extension.js:289
 msgid "Unknown"
 msgstr "Unbekannt"
-
-#: extension.js:329
-msgid "Service frozen, timer stopped"
-msgstr "Dienst eingefroren, Timer gestoppt"
-
-#: extension.js:332
-msgid "Service frozen"
-msgstr "Dienst eingefroren"
-
-#: extension.js:335
-msgid "Timer stopped"
-msgstr "Timer gestoppt"
-
-#: extension.js:337
-msgid "Paused"
-msgstr "Pausiert"
-
-#: extension.js:340
-msgid "Frozen externally"
-msgstr "Extern eingefroren"
-
-#: extension.js:343
-msgid "Running"
-msgstr "Läuft"
-
-#: extension.js:346
-msgid "Timer active"
-msgstr "Timer aktiv"
-
-#: extension.js:349
-msgid "Not loaded"
-msgstr "Nicht geladen"
-
-#: extension.js:351
-msgid "Inactive"
-msgstr "Inaktiv"
 
 #: prefs.js:75
 msgid "No service unit"
@@ -250,6 +240,10 @@ msgstr "Dienst entfernt"
 msgid "Save services to apply this change."
 msgstr "Speichere die Dienste, um diese Änderung anzuwenden."
 
+#: prefs.js:266
+msgid "Loading built-in catalog"
+msgstr "Eingebauter Katalog wird geladen"
+
 #: prefs.js:269
 msgid "Built-in catalog restored"
 msgstr "Eingebauter Katalog wiederhergestellt"
@@ -278,6 +272,10 @@ msgstr "Service-Unit"
 msgid "Timer unit (optional)"
 msgstr "Timer-Unit (optional)"
 
+#: prefs.js:340
+msgid "Use with pause button"
+msgstr "Mit Pause-Schalter verwenden"
+
 #: prefs.js:307 prefs.js:308
 msgid "Remove service"
 msgstr "Dienst entfernen"
@@ -305,3 +303,161 @@ msgstr "Doppelte Service-Unit"
 #: prefs.js:375
 msgid "Timer unit must end in .timer"
 msgstr "Timer-Unit muss auf .timer enden"
+
+#: prefs.js:482
+msgid "Custom service"
+msgstr "Eigener Dienst"
+
+#: prefs.js:485
+msgid "Not available on this system"
+msgstr "Auf diesem System nicht verfügbar"
+
+#: prefs.js:488
+msgid "Available and active"
+msgstr "Verfügbar und aktiv"
+
+#: prefs.js:490
+msgid "Available but currently inactive"
+msgstr "Verfügbar, aber derzeit inaktiv"
+
+#: prefs.js:146
+msgid "GSettings switches"
+msgstr "GSettings-Schalter"
+
+#: prefs.js:147
+msgid ""
+"Toggle other extensions’ GSettings booleans (like a scan/auto-run switch) "
+"together with the pause button. Applied directly, no privileged helper "
+"needed."
+msgstr ""
+"Schalte GSettings-Bool-Werte anderer Erweiterungen (z. B. einen Scan-/"
+"Autostart-Schalter) zusammen mit dem Pause-Schalter um. Wird direkt "
+"angewendet, kein privilegiertes Hilfsprogramm nötig."
+
+#: prefs.js:158
+msgid "Configured switches"
+msgstr "Konfigurierte Schalter"
+
+#: prefs.js:571
+msgid "Switch configuration"
+msgstr "Schalterkonfiguration"
+
+#: prefs.js:572
+msgid "Applied directly via GSettings, no privileged helper needed."
+msgstr "Wird direkt über GSettings angewendet, kein privilegiertes Hilfsprogramm nötig."
+
+#: prefs.js:580
+msgid "Add switch"
+msgstr "Schalter hinzufügen"
+
+#: prefs.js:581
+msgid "Restore Folder Size default"
+msgstr "Folder-Size-Vorgabe wiederherstellen"
+
+#: prefs.js:582
+msgid "Reload switches"
+msgstr "Schalter neu laden"
+
+#: prefs.js:583
+msgid "Save switches"
+msgstr "Schalter speichern"
+
+#: prefs.js:603
+msgid "Switches loaded"
+msgstr "Schalter geladen"
+
+#: prefs.js:607
+msgid "Failed to load switches"
+msgstr "Schalter konnten nicht geladen werden"
+
+#: prefs.js:616
+msgid "Fix GSettings switches"
+msgstr "GSettings-Schalter korrigieren"
+
+#: prefs.js:620 prefs.js:625
+msgid "GSettings switches saved"
+msgstr "GSettings-Schalter gespeichert"
+
+#: prefs.js:637
+msgid "Switch added"
+msgstr "Schalter hinzugefügt"
+
+#: prefs.js:643
+msgid "Switch removed"
+msgstr "Schalter entfernt"
+
+#: prefs.js:643 prefs.js:663
+msgid "Save switches to apply this change."
+msgstr "Speichere die Schalter, um diese Änderung anzuwenden."
+
+#: prefs.js:657
+msgid "Folder Size default updated"
+msgstr "Folder-Size-Vorgabe aktualisiert"
+
+#: prefs.js:660
+msgid "Folder Size default added"
+msgstr "Folder-Size-Vorgabe hinzugefügt"
+
+#: prefs.js:682
+msgid "Schema not installed"
+msgstr "Schema nicht installiert"
+
+#: prefs.js:686
+msgid "Key not found or not boolean"
+msgstr "Schlüssel nicht gefunden oder nicht boolesch"
+
+#: prefs.js:689
+msgid "Available"
+msgstr "Verfügbar"
+
+#: prefs.js:700
+msgid "No GSettings switches configured"
+msgstr "Keine GSettings-Schalter konfiguriert"
+
+#: prefs.js:701
+msgid "Add a switch or restore the Folder Size default."
+msgstr "Füge einen Schalter hinzu oder stelle die Folder-Size-Vorgabe wieder her."
+
+#: prefs.js:710 prefs.js:731
+msgid "Unnamed switch"
+msgstr "Unbenannter Schalter"
+
+#: prefs.js:715
+msgid "Schema id"
+msgstr "Schema-ID"
+
+#: prefs.js:716
+msgid "Key"
+msgstr "Schlüssel"
+
+#: prefs.js:718
+msgid "Hide own toggle key (optional)"
+msgstr "Eigenen Schalter-Schlüssel ausblenden (optional)"
+
+#: prefs.js:757
+msgid "Extension UUID (optional, for non-system-wide schemas)"
+msgstr "Erweiterungs-UUID (optional, für nicht systemweit installierte Schemas)"
+
+#: prefs.js:722
+msgid "Turn off when pausing"
+msgstr "Beim Pausieren ausschalten"
+
+#: prefs.js:737
+msgid "Get extension"
+msgstr "Erweiterung beziehen"
+
+#: prefs.js:750
+msgid "Remove switch"
+msgstr "Schalter entfernen"
+
+#: prefs.js:812
+msgid "Switch"
+msgstr "Schalter"
+
+#: prefs.js:824
+msgid "Schema id is required"
+msgstr "Schema-ID ist erforderlich"
+
+#: prefs.js:827
+msgid "Key is required"
+msgstr "Schlüssel ist erforderlich"
