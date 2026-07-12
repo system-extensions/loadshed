@@ -32,13 +32,6 @@ gettext domain, and settings schema still use `service-pauser` for compatibility
 with existing installations. Any remaining `service-pauser` paths or commands
 below refer to those compatibility interfaces, not to the extension UUID.
 
-If you previously installed the old UUID, disable it after the new extension is
-installed:
-
-```bash
-gnome-extensions disable service-pauser@yurij.de
-```
-
 ## Configure Services
 
 Open the extension preferences in GNOME Extensions to add, remove, save, reload,
