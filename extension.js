@@ -138,7 +138,7 @@ class ServicePauserManager {
                 null
             );
         } catch (error) {
-            logError(error, 'Service Pauser: failed to resume on disable');
+            logError(error, 'Loadshed: failed to resume on disable');
         }
     }
 }
@@ -147,7 +147,7 @@ const ServicePauserToggle = GObject.registerClass(
 class ServicePauserToggle extends QuickSettings.QuickMenuToggle {
     _init(extensionObject, manager, indicator) {
         super._init({
-            title: _('Stop Load'),
+            title: _('Loadshed'),
             subtitle: _('Loading'),
             iconName: 'media-playback-pause-symbolic',
             toggleMode: true,
@@ -162,7 +162,7 @@ class ServicePauserToggle extends QuickSettings.QuickMenuToggle {
         this._refreshSourceId = 0;
         this._settingsSignalIds = [];
 
-        this.menu.setHeader('media-playback-pause-symbolic', _('Stop Load'), _('Background services'));
+        this.menu.setHeader('media-playback-pause-symbolic', _('Loadshed'), _('Background services'));
         this._itemsSection = new PopupMenu.PopupMenuSection();
         this.menu.addMenuItem(this._itemsSection);
         this.menu.addAction(_('Refresh'), () => this._refresh());
@@ -295,12 +295,12 @@ class ServicePauserToggle extends QuickSettings.QuickMenuToggle {
         }
 
         this.subtitle = _('Error');
-        Main.notify(_('Service Pauser'), message);
+        Main.notify(_('Loadshed'), message);
     }
 
     _notifySetupRequired() {
         Main.notify(
-            _('Service Pauser setup required'),
+            _('Loadshed setup required'),
             _('Run install.sh from the extension directory, then reload GNOME Shell or re-enable the extension.')
         );
     }
@@ -335,7 +335,7 @@ class ServicePauserToggle extends QuickSettings.QuickMenuToggle {
 
         if (Array.isArray(status.errors) && status.errors.length > 0) {
             this.subtitle = _('Partial error');
-            Main.notify(_('Service Pauser'), status.errors.join('\n'));
+            Main.notify(_('Loadshed'), status.errors.join('\n'));
         }
 
         this._rebuildEntryItems(entries);
@@ -497,7 +497,7 @@ export default class ServicePauserExtension extends Extension {
     enable() {
         this._settings = this.getSettings();
         this._manager = new ServicePauserManager(this._settings);
-        // service-pauser takes over pausing for enabled GSettings targets,
+        // Loadshed takes over pausing for enabled GSettings targets,
         // so their own Quick Settings toggle would be redundant while we
         // manage it. (Folder Size no longer has a GSettings-backed toggle
         // to hide - it's managed via file-targets instead, see B3/B4.)
@@ -508,17 +508,17 @@ export default class ServicePauserExtension extends Extension {
         this._targetsSignalId = this._settings.connect('changed::gsettings-targets', () => {
             const pauseActive = Boolean(this._indicator?.paused);
             this._manager.reloadTargets(pauseActive)
-                .catch(error => logError(error, 'Service Pauser: failed to reload GSettings targets'));
+                .catch(error => logError(error, 'Loadshed: failed to reload GSettings targets'));
         });
         this._fileTargetsSignalId = this._settings.connect('changed::file-targets', () => {
             const pauseActive = Boolean(this._indicator?.paused);
             this._manager.reloadTargets(pauseActive)
-                .catch(error => logError(error, 'Service Pauser: failed to reload file targets'));
+                .catch(error => logError(error, 'Loadshed: failed to reload file targets'));
         });
         this._appTargetsSignalId = this._settings.connect('changed::app-targets', () => {
             const pauseActive = Boolean(this._indicator?.paused);
             this._manager.reloadTargets(pauseActive)
-                .catch(error => logError(error, 'Service Pauser: failed to reload app targets'));
+                .catch(error => logError(error, 'Loadshed: failed to reload app targets'));
         });
 
         this._indicator = new ServicePauserIndicator(this, this._manager);

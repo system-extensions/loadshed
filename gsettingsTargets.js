@@ -27,7 +27,7 @@ export function lookupTargetSchema(defaultSource, schemaId, extensionUuid) {
                 return schema;
             }
         } catch (error) {
-            logError(error, `Service Pauser: failed to load schema dir ${schemaDir}`);
+            logError(error, `Loadshed: failed to load schema dir ${schemaDir}`);
         }
     }
 
@@ -70,7 +70,7 @@ export class GSettingsTargets {
                 this._entries = parsed.filter(entry => entry && typeof entry === 'object');
             }
         } catch (error) {
-            logError(error, 'Service Pauser: failed to parse gsettings-targets');
+            logError(error, 'Loadshed: failed to parse gsettings-targets');
         }
 
         const schemaSource = Gio.SettingsSchemaSource.get_default();
@@ -120,7 +120,7 @@ export class GSettingsTargets {
             }
             return new Gio.Settings({ settingsSchema: schema });
         } catch (error) {
-            logError(error, `Service Pauser: failed to resolve ${schemaId}::${key}`);
+            logError(error, `Loadshed: failed to resolve ${schemaId}::${key}`);
             return null;
         }
     }
@@ -148,7 +148,7 @@ export class GSettingsTargets {
                 };
             }
         } catch (error) {
-            logError(error, 'Service Pauser: failed to parse gsettings runtime state');
+            logError(error, 'Loadshed: failed to parse gsettings runtime state');
         }
         return emptyRuntimeState();
     }
@@ -199,7 +199,7 @@ export class GSettingsTargets {
                     changed = true;
                 }
             } catch (error) {
-                logError(error, `Service Pauser: failed to restore ${snapshot?.schema}::${snapshot?.key}`);
+                logError(error, `Loadshed: failed to restore ${snapshot?.schema}::${snapshot?.key}`);
             }
         });
 
@@ -320,7 +320,7 @@ export class GSettingsTargets {
             try {
                 running = item.gsettings.get_boolean(item.entry.key) !== Boolean(item.entry.pause_value);
             } catch (error) {
-                logError(error, `Service Pauser: failed to read ${item.entry.schema}::${item.entry.key}`);
+                logError(error, `Loadshed: failed to read ${item.entry.schema}::${item.entry.key}`);
             }
 
             return {

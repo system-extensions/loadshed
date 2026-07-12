@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: service-pauser 1\n"
+"Project-Id-Version: loadshed 1\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-07-10 17:45+0200\n"
 "PO-Revision-Date: 2026-07-10 10:35+0200\n"
@@ -16,8 +16,8 @@ msgstr ""
 msgid "Helper command failed"
 msgstr "Helper-Befehl fehlgeschlagen"
 
-#: extension.js:140 extension.js:155
-msgid "Stop Load"
+#: extension.js:140 extension.js:155 extension.js:285 extension.js:325
+msgid "Loadshed"
 msgstr "Lastabwurf"
 
 #: extension.js:141
@@ -65,13 +65,9 @@ msgstr "Einrichtung erforderlich"
 msgid "Error"
 msgstr "Fehler"
 
-#: extension.js:285 extension.js:325
-msgid "Service Pauser"
-msgstr "Service Pauser"
-
 #: extension.js:290
-msgid "Service Pauser setup required"
-msgstr "Service Pauser Einrichtung erforderlich"
+msgid "Loadshed setup required"
+msgstr "Lastabwurf-Einrichtung erforderlich"
 
 #: extension.js:291
 msgid ""
@@ -170,8 +166,8 @@ msgid "Services"
 msgstr "Dienste"
 
 #: prefs.js:155
-msgid "Edit background maintenance services managed by Service Pauser."
-msgstr "Bearbeite von Service Pauser verwaltete Hintergrund-Wartungsdienste."
+msgid "Edit background maintenance services managed by Loadshed."
+msgstr "Bearbeite von Lastabwurf verwaltete Hintergrund-Wartungsdienste."
 
 #: prefs.js:160 prefs.js:276
 msgid "Loading services"

@@ -129,7 +129,7 @@ await manager.reload(true);
 assertArrayEqual(
     runner.started,
     ['flatpak run org.signal.Signal'],
-    'disabling an app target releases an app stopped by Service Pauser'
+    'disabling an app target releases an app stopped by Loadshed'
 );
 status = await manager.status();
 assertEqual(status.length, 0, 'disabling an app target removes it from status');

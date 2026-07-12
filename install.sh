@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-EXT_UUID="service-pauser@yurij.de"
+EXT_UUID="loadshed@yurij.de"
+LEGACY_EXT_UUID="service-pauser@yurij.de"
 HELPER_NAME="service-pauser-helper"
 HELPER_INSTALL_PATH="/usr/local/bin/${HELPER_NAME}"
 CONFIG_DIR="/etc/service-pauser"
@@ -133,3 +134,6 @@ sudo visudo -c -f "${SUDOERS_FILE}" >/dev/null
 
 echo "Done."
 echo "Enable after GNOME Shell reload/login with: gnome-extensions enable ${EXT_UUID}"
+if "${as_user[@]}" gnome-extensions info "${LEGACY_EXT_UUID}" >/dev/null 2>&1; then
+  echo "Legacy extension UUID detected. Disable the old copy after migration with: gnome-extensions disable ${LEGACY_EXT_UUID}"
+fi

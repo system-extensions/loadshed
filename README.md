@@ -1,4 +1,4 @@
-# Service Pauser
+# Loadshed
 
 GNOME Shell extension for pausing selected background maintenance services from Quick Settings.
 
@@ -12,8 +12,8 @@ services that start later.
 ## Install
 
 ```bash
-git clone https://github.com/shell-extensions/service-pauser
-cd service-pauser
+git clone https://github.com/system-extensions/loadshed
+cd loadshed
 ./install.sh
 ```
 
@@ -24,7 +24,18 @@ sudoers rule in one step.
 Log out and back in, then enable:
 
 ```bash
-gnome-extensions enable service-pauser@yurij.de
+gnome-extensions enable loadshed@yurij.de
+```
+
+The GNOME Shell UUID is `loadshed@yurij.de`. The helper, config directory,
+gettext domain, and settings schema still use `service-pauser` for compatibility
+with existing installations.
+
+If you previously installed the old UUID, disable it after the new extension is
+installed:
+
+```bash
+gnome-extensions disable service-pauser@yurij.de
 ```
 
 ## Configure Services
@@ -61,40 +72,43 @@ Snap daemons are normal systemd units and can be added here too. For example,
 Snap usually exposes a daemon as `snap.<snap-name>.<service-name>.service`.
 Use the exact unit name shown by systemd/snap for that daemon.
 
-## GSettings switches
+## Extension switches
 
-Not everything worth pausing is a systemd unit. The [Folder Size](https://github.com/shell-extensions/foldersize)
-extension, for example, scans folder sizes in Nautilus and is controlled by a
-plain GSettings boolean (`auto-scan`) instead. For cases like this, Service
-Pauser can also toggle arbitrary GSettings booleans together with the pause
-button — no root or helper involved, since these are user-session settings.
+Not everything worth pausing is a systemd unit. The supported
+[Folder Size](https://github.com/system-extensions/foldersize) extension scans
+folder sizes in Nautilus, Caja, or Nemo and stores its scan toggle in
+`~/.config/foldersize.conf`. Loadshed ships a Folder Size file-target preset
+that sets `FolderSize:auto_scan=false` while paused and restores the previous
+state on resume. The target is handled in the user session, so no root helper is
+needed for this switch.
 
-This is configured in Preferences under "GSettings switches", separately from
-the systemd service list. Each entry has a schema id, a key, and the value the
-key should hold while paused; entries are validated (schema installed, key
-exists and is boolean) before being used, and unavailable ones are skipped
-silently rather than breaking the extension. A Folder Size preset ships
-out of the box and can be restored with one click if removed.
+Loadshed can also toggle arbitrary GSettings booleans together with the pause
+button. This is configured in Preferences under "GSettings switches",
+separately from the systemd service list. Each entry has a schema id, a key,
+and the value the key should hold while paused; entries are validated (schema
+installed, key exists and is boolean) before being used, and unavailable ones
+are skipped silently rather than breaking the extension.
 
-Before changing a managed boolean, Service Pauser records its current value.
-Resume restores that exact value instead of assuming the opposite of the pause
-value. The saved state also survives a GNOME Shell restart. The same rule applies
-to another extension's Quick Settings visibility: a toggle that was already
-hidden remains hidden after Service Pauser stops managing it.
+Before changing a managed boolean or file-backed switch, Loadshed records its
+current value. Resume restores that exact value instead of assuming the
+opposite of the pause value. The saved state also survives a GNOME Shell
+restart. The same rule applies to another extension's Quick Settings
+visibility: a toggle that was already hidden remains hidden after Loadshed
+stops managing it.
 
 Most extensions compile their schema only inside their own extension
 directory rather than installing it system-wide, so it won't be found by
 plain schema lookup. If that happens ("Schema not installed" in
 Preferences even though the extension is installed), set the entry's
-"Extension UUID" field (e.g. `foldersize@yurij.de`) — Service Pauser then
+"Extension UUID" field (e.g. `foldersize@yurij.de`) — Loadshed then
 also looks in that extension's own `schemas/` directory, the same way GNOME
 Shell resolves an extension's own settings.
 
 If an entry's target extension also has its own Quick Settings toggle (like
-Folder Size's "Scan on/off"), that toggle becomes redundant once Service
-Pauser manages it — set as `own_toggle_key`, it gets hidden automatically
-while managed here and reappears once you disable the switch or Service
-Pauser itself, provided it was visible before Service Pauser took control.
+Folder Size's "Scan on/off"), that toggle becomes redundant once Loadshed
+manages it — set as `own_toggle_key`, it gets hidden automatically
+while managed here and reappears once you disable the switch or Loadshed
+itself, provided it was visible before Loadshed took control.
 
 ## Desktop apps
 
@@ -116,9 +130,9 @@ default configuration includes Signal:
 
 `kind` may be `flatpak` or `snap`. Flatpak targets are stopped with
 `flatpak kill <app_id>`. Snap desktop apps are matched by their process command
-and stopped with `SIGTERM`. Resume only restarts an app if Service Pauser found
-it running when pause was activated. If no start command is configured, Service
-Pauser resumes Flatpak apps with `flatpak run <app_id>` and Snap apps with
+and stopped with `SIGTERM`. Resume only restarts an app if Loadshed found
+it running when pause was activated. If no start command is configured, Loadshed
+resumes Flatpak apps with `flatpak run <app_id>` and Snap apps with
 `snap run <app_id>`. Set a start command only when an app needs a different
 launcher or extra flags, for example a tray/background option.
 

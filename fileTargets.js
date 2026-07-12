@@ -46,7 +46,7 @@ export class FileTargets {
                     entry && typeof entry === 'object' && entry.path && entry.key);
             }
         } catch (error) {
-            logError(error, 'Service Pauser: failed to parse file-targets');
+            logError(error, 'Loadshed: failed to parse file-targets');
         }
     }
 
@@ -65,7 +65,7 @@ export class FileTargets {
                 };
             }
         } catch (error) {
-            logError(error, 'Service Pauser: failed to parse file runtime state');
+            logError(error, 'Loadshed: failed to parse file runtime state');
         }
         return emptyRuntimeState();
     }
@@ -84,7 +84,7 @@ export class FileTargets {
             keyFile.load_from_file(path, GLib.KeyFileFlags.NONE);
             return keyFile.get_string(entry.section || DEFAULT_SECTION, entry.key);
         } catch (error) {
-            logError(error, `Service Pauser: failed to read ${path}`);
+            logError(error, `Loadshed: failed to read ${path}`);
             return null;
         }
     }
@@ -97,7 +97,7 @@ export class FileTargets {
             try {
                 keyFile.load_from_file(path, GLib.KeyFileFlags.KEEP_COMMENTS);
             } catch (error) {
-                logError(error, `Service Pauser: failed to parse ${path} before write`);
+                logError(error, `Loadshed: failed to parse ${path} before write`);
             }
         }
 
@@ -108,7 +108,7 @@ export class FileTargets {
             keyFile.save_to_file(path);
             return true;
         } catch (error) {
-            logError(error, `Service Pauser: failed to write ${path}`);
+            logError(error, `Loadshed: failed to write ${path}`);
             return false;
         }
     }

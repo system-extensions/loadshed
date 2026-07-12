@@ -21,7 +21,7 @@ function parseCommand(command) {
         const [, argv] = GLib.shell_parse_argv(command);
         return argv.length > 0 ? argv : null;
     } catch (error) {
-        logError(error, `Service Pauser: failed to parse app command ${command}`);
+        logError(error, `Loadshed: failed to parse app command ${command}`);
         return null;
     }
 }
@@ -65,12 +65,12 @@ class DefaultAppRunner {
                             stderr: stderr || '',
                         });
                     } catch (error) {
-                        logError(error, `Service Pauser: failed to read app command output (${argv.join(' ')})`);
+                        logError(error, `Loadshed: failed to read app command output (${argv.join(' ')})`);
                         resolve({ ok: false, stdout: '', stderr: '' });
                     }
                 });
             } catch (error) {
-                logError(error, `Service Pauser: failed to run app command (${argv.join(' ')})`);
+                logError(error, `Loadshed: failed to run app command (${argv.join(' ')})`);
                 resolve({ ok: false, stdout: '', stderr: '' });
             }
         });
@@ -119,7 +119,7 @@ class DefaultAppRunner {
             );
             return true;
         } catch (error) {
-            logError(error, `Service Pauser: failed to start app command ${command}`);
+            logError(error, `Loadshed: failed to start app command ${command}`);
             return false;
         }
     }
@@ -186,7 +186,7 @@ export class AppTargets {
                 this._entries = parsed.filter(entry => entry && typeof entry === 'object');
             }
         } catch (error) {
-            logError(error, 'Service Pauser: failed to parse app-targets');
+            logError(error, 'Loadshed: failed to parse app-targets');
         }
     }
 
@@ -223,7 +223,7 @@ export class AppTargets {
                 };
             }
         } catch (error) {
-            logError(error, 'Service Pauser: failed to parse app runtime state');
+            logError(error, 'Loadshed: failed to parse app runtime state');
         }
         return emptyRuntimeState();
     }

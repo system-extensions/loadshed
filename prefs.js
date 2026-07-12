@@ -163,7 +163,7 @@ export default class ServicePauserPrefs extends ExtensionPreferences {
 
         const servicesGroup = new Adw.PreferencesGroup({
             title: this._('Services'),
-            description: this._('Edit background maintenance services managed by Service Pauser.'),
+            description: this._('Edit background maintenance services managed by Loadshed.'),
         });
         page.add(servicesGroup);
 
@@ -273,7 +273,7 @@ export default class ServicePauserPrefs extends ExtensionPreferences {
             const entries = JSON.parse(text);
             return Array.isArray(entries) ? entries : [];
         } catch (error) {
-            logError(error, 'Service Pauser: failed to load default service catalog');
+            logError(error, 'Loadshed: failed to load default service catalog');
             return [];
         }
     }
@@ -671,7 +671,7 @@ export default class ServicePauserPrefs extends ExtensionPreferences {
             this._appTargets = Array.isArray(parsed) ? parsed : [];
             this._setAppTargetsMessage(this._('Desktop apps loaded'), 'app-targets');
         } catch (error) {
-            logError(error, 'Service Pauser: failed to parse app-targets');
+            logError(error, 'Loadshed: failed to parse app-targets');
             this._appTargets = [];
             this._setAppTargetsMessage(this._('Failed to load desktop apps'), error.message || this._('Unknown error'));
         }
@@ -960,7 +960,7 @@ export default class ServicePauserPrefs extends ExtensionPreferences {
             this._targets = Array.isArray(parsed) ? parsed : [];
             this._setTargetsMessage(this._('Switches loaded'), 'gsettings-targets');
         } catch (error) {
-            logError(error, 'Service Pauser: failed to parse gsettings-targets');
+            logError(error, 'Loadshed: failed to parse gsettings-targets');
             this._targets = [];
             this._setTargetsMessage(this._('Failed to load switches'), error.message || this._('Unknown error'));
         }
@@ -1010,7 +1010,7 @@ export default class ServicePauserPrefs extends ExtensionPreferences {
             const parsed = JSON.parse(this._settings.get_string('file-targets'));
             entries = Array.isArray(parsed) ? parsed : [];
         } catch (error) {
-            logError(error, 'Service Pauser: failed to parse file-targets');
+            logError(error, 'Loadshed: failed to parse file-targets');
         }
 
         const existingIndex = entries.findIndex(entry =>
