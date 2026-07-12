@@ -111,16 +111,18 @@ function appKindFromRow(row) {
     return APP_TARGET_KINDS[row.selected] || 'flatpak';
 }
 
-const FOLDERSIZE_TARGET_PRESET = {
+// Folder Size (foldersize@yurij.de) has no GSettings schema of its own
+// anymore - it stores auto_scan in a plain INI file and is managed via
+// the file-targets key (see fileTargets.js), not gsettings-targets.
+const FOLDERSIZE_FILE_TARGET_PRESET = {
     id: 'foldersize',
     label: 'Folder size scan',
-    schema: 'org.gnome.shell.extensions.foldersize',
-    extension_uuid: 'foldersize@yurij.de',
-    key: 'auto-scan',
-    pause_value: false,
+    path: '~/.config/foldersize.conf',
+    section: 'FolderSize',
+    key: 'auto_scan',
+    pause_value: 'false',
+    resume_value: 'true',
     enabled: true,
-    own_toggle_key: 'show-quick-settings',
-    install_url: 'https://github.com/shell-extensions/foldersize/releases',
 };
 
 const SIGNAL_APP_PRESET = {
@@ -1000,24 +1002,33 @@ export default class ServicePauserPrefs extends ExtensionPreferences {
     }
 
     _restoreFoldersizeDefault() {
-        const entries = this._rawTargetsFromRows();
+        // Folder Size is managed via file-targets, not the gsettings-targets
+        // table shown on this row, so it's applied directly instead of
+        // going through _targets/_rawTargetsFromRows.
+        let entries = [];
+        try {
+            const parsed = JSON.parse(this._settings.get_string('file-targets'));
+            entries = Array.isArray(parsed) ? parsed : [];
+        } catch (error) {
+            logError(error, 'Service Pauser: failed to parse file-targets');
+        }
+
         const existingIndex = entries.findIndex(entry =>
-            entry.schema === FOLDERSIZE_TARGET_PRESET.schema && entry.key === FOLDERSIZE_TARGET_PRESET.key);
+            entry.path === FOLDERSIZE_FILE_TARGET_PRESET.path && entry.key === FOLDERSIZE_FILE_TARGET_PRESET.key);
 
         if (existingIndex >= 0) {
             entries[existingIndex] = {
                 ...entries[existingIndex],
-                ...FOLDERSIZE_TARGET_PRESET,
-                id: entries[existingIndex].id || FOLDERSIZE_TARGET_PRESET.id,
+                ...FOLDERSIZE_FILE_TARGET_PRESET,
+                id: entries[existingIndex].id || FOLDERSIZE_FILE_TARGET_PRESET.id,
             };
-            this._setTargetsMessage(this._('Folder Size default updated'), this._('Save switches to apply this change.'));
+            this._setTargetsMessage(this._('Folder Size default updated'), 'file-targets');
         } else {
-            entries.push({ ...FOLDERSIZE_TARGET_PRESET });
-            this._setTargetsMessage(this._('Folder Size default added'), this._('Save switches to apply this change.'));
+            entries.push({ ...FOLDERSIZE_FILE_TARGET_PRESET });
+            this._setTargetsMessage(this._('Folder Size default added'), 'file-targets');
         }
 
-        this._targets = entries;
-        this._rebuildTargetRows();
+        this._settings.set_string('file-targets', JSON.stringify(entries));
     }
 
     _resolveSchema(schemaId, extensionUuid) {

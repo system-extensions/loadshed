@@ -82,6 +82,7 @@ bundle_source="${pack_dir}/source"
   "${script_dir}/prefs.js" \
   "${script_dir}/appTargets.js" \
   "${script_dir}/gsettingsTargets.js" \
+  "${script_dir}/fileTargets.js" \
   "${script_dir}/stylesheet.css" \
   "${script_dir}/README.md" \
   "${bundle_source}/"
@@ -99,6 +100,7 @@ echo "Packing extension bundle"
   --extra-source=README.md \
   --extra-source=appTargets.js \
   --extra-source=gsettingsTargets.js \
+  --extra-source=fileTargets.js \
   --extra-source=po \
   --extra-source=tools \
   -o "${pack_dir}")

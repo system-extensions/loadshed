@@ -17,14 +17,24 @@
       <description>How often the extension refreshes service status, in seconds.</description>
     </key>
     <key name="gsettings-targets" type="s">
-      <default>'[{"id":"foldersize","label":"Folder size scan","schema":"org.gnome.shell.extensions.foldersize","extension_uuid":"foldersize@yurij.de","key":"auto-scan","pause_value":false,"enabled":true,"own_toggle_key":"show-quick-settings","install_url":"https://github.com/shell-extensions/foldersize/releases"}]'</default>
+      <default>'[]'</default>
       <summary>GSettings switches to pause alongside services</summary>
-      <description>JSON list of GSettings targets (schema, key, pause value) toggled together with the pause button, in addition to systemd units. Each entry may also hide its own extension's Quick Settings toggle while managed here.</description>
+      <description>JSON list of GSettings targets (schema, key, pause value) toggled together with the pause button, in addition to systemd units. Each entry may also hide its own extension's Quick Settings toggle while managed here. Folder Size (foldersize@yurij.de) moved to the file-targets key since it no longer exposes a GSettings schema.</description>
     </key>
     <key name="gsettings-runtime-state" type="s">
       <default>'{"paused":{},"hidden":{}}'</default>
       <summary>Saved values for managed GSettings switches</summary>
       <description>Internal state used to restore GSettings switches to the values they had before Service Pauser changed them.</description>
+    </key>
+    <key name="file-targets" type="s">
+      <default>'[{"id":"foldersize","label":"Folder size scan","path":"~/.config/foldersize.conf","section":"FolderSize","key":"auto_scan","pause_value":"false","resume_value":"true","enabled":true}]'</default>
+      <summary>Config file switches to pause alongside services</summary>
+      <description>JSON list of simple INI config file targets (path, section, key, pause value) toggled together with the pause button, for applications that store their state in a plain file instead of GSettings.</description>
+    </key>
+    <key name="file-runtime-state" type="s">
+      <default>'{"paused":{}}'</default>
+      <summary>Saved values for managed config file switches</summary>
+      <description>Internal state used to restore config file switches to the values they had before Service Pauser changed them.</description>
     </key>
     <key name="app-targets" type="s">
       <default>'[{"id":"signal","label":"Signal","kind":"flatpak","app_id":"org.signal.Signal","desktop_id":"org.signal.Signal.desktop","enabled":true}]'</default>

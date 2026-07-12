@@ -18,7 +18,7 @@ msgstr "Helper-Befehl fehlgeschlagen"
 
 #: extension.js:140 extension.js:155
 msgid "Stop Load"
-msgstr "Last Stop"
+msgstr "Lastabwurf"
 
 #: extension.js:141
 msgid "Loading"

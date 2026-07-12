@@ -10,6 +10,7 @@ import * as QuickSettings from 'resource:///org/gnome/shell/ui/quickSettings.js'
 import { Extension, gettext as _, ngettext } from 'resource:///org/gnome/shell/extensions/extension.js';
 import { AppTargets } from './appTargets.js';
 import { GSettingsTargets } from './gsettingsTargets.js';
+import { FileTargets } from './fileTargets.js';
 
 const HELPER_INSTALL_PATH = '/usr/local/bin/service-pauser-helper';
 const DEFAULT_REFRESH_INTERVAL = 10;
@@ -21,16 +22,19 @@ function formatCountLabel(label, count) {
 class ServicePauserManager {
     constructor(settings) {
         this._targets = new GSettingsTargets(settings);
+        this._files = new FileTargets(settings);
         this._apps = new AppTargets(settings);
     }
 
     async reloadTargets(pauseActive) {
         this._targets.reload(pauseActive);
+        this._files.reload(pauseActive);
         await this._apps.reload(pauseActive);
     }
 
     async applyPause() {
         this._targets.applyPause();
+        this._files.applyPause();
         await this._apps.applyPause();
     }
 
@@ -39,17 +43,19 @@ class ServicePauserManager {
         // non-blocking) and never awaits a subprocess result, so it stays
         // synchronous here too.
         this._targets.applyResume();
+        this._files.applyResume();
         this._apps.applyResume();
     }
 
     async enforceTargets() {
         this._targets.enforce();
+        this._files.enforce();
         await this._apps.enforce();
     }
 
     async targetsStatus() {
         const appEntries = await this._apps.status();
-        return this._targets.status().concat(appEntries);
+        return this._targets.status().concat(this._files.status(), appEntries);
     }
 
     hideOwnToggles() {
@@ -484,6 +490,7 @@ export default class ServicePauserExtension extends Extension {
         this._manager = null;
         this._indicator = null;
         this._targetsSignalId = 0;
+        this._fileTargetsSignalId = 0;
         this._appTargetsSignalId = 0;
     }
 
@@ -491,8 +498,9 @@ export default class ServicePauserExtension extends Extension {
         this._settings = this.getSettings();
         this._manager = new ServicePauserManager(this._settings);
         // service-pauser takes over pausing for enabled GSettings targets,
-        // so their own Quick Settings toggle (e.g. foldersize's) would be
-        // redundant while we manage it.
+        // so their own Quick Settings toggle would be redundant while we
+        // manage it. (Folder Size no longer has a GSettings-backed toggle
+        // to hide - it's managed via file-targets instead, see B3/B4.)
         this._manager.hideOwnToggles();
 
         // GObject signal callbacks can't be awaited, so these fire the
@@ -501,6 +509,11 @@ export default class ServicePauserExtension extends Extension {
             const pauseActive = Boolean(this._indicator?.paused);
             this._manager.reloadTargets(pauseActive)
                 .catch(error => logError(error, 'Service Pauser: failed to reload GSettings targets'));
+        });
+        this._fileTargetsSignalId = this._settings.connect('changed::file-targets', () => {
+            const pauseActive = Boolean(this._indicator?.paused);
+            this._manager.reloadTargets(pauseActive)
+                .catch(error => logError(error, 'Service Pauser: failed to reload file targets'));
         });
         this._appTargetsSignalId = this._settings.connect('changed::app-targets', () => {
             const pauseActive = Boolean(this._indicator?.paused);
@@ -516,6 +529,10 @@ export default class ServicePauserExtension extends Extension {
             this._settings.disconnect(this._targetsSignalId);
         }
         this._targetsSignalId = 0;
+        if (this._settings && this._fileTargetsSignalId) {
+            this._settings.disconnect(this._fileTargetsSignalId);
+        }
+        this._fileTargetsSignalId = 0;
         if (this._settings && this._appTargetsSignalId) {
             this._settings.disconnect(this._appTargetsSignalId);
         }
