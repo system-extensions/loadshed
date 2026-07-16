@@ -1,11 +1,11 @@
-# Loadshed
+# Lastabwurf (Loadshed)
 
 [English](README.md) | **Deutsch** | [Español](README.es.md)
 
-GNOME-Shell-Erweiterung zum Pausieren ausgewählter Hintergrund-Wartungsdienste über die Schnelleinstellungen.
+Loadshed (Lastabwurf) ist eine GNOME-Shell-Erweiterung zum Pausieren ausgewählter Hintergrund-Wartungsdienste über die Schnelleinstellungen.
 
-Die Erweiterung delegiert privilegierte Arbeit an `/usr/local/bin/service-pauser-helper`.
-Der Helper liest und schreibt root-eigene Units in `/etc/service-pauser/units.json` und nutzt
+Die Erweiterung delegiert privilegierte Arbeit an `/usr/local/bin/loadshed-helper`.
+Der Helper liest und schreibt root-eigene Units in `/etc/loadshed/units.json` und nutzt
 `systemctl freeze`/`systemctl thaw` für Dienste. Timer, die neben einem Dienst konfiguriert sind,
 werden während der Pause gestoppt und nur dann neu gestartet, wenn der Helper sie selbst gestoppt hat.
 Solange der Schalter in den Schnelleinstellungen pausiert ist, erzwingen Aktualisierungen diesen
@@ -36,15 +36,13 @@ gnome-extensions enable loadshed@yurij.de
 
 Der Source-Checkout heißt `loadshed`, während die GNOME-Shell-UUID und das installierte
 Erweiterungsverzeichnis `loadshed@yurij.de` heißen. Helper, Konfigurationsverzeichnis,
-gettext-Domain und Settings-Schema verwenden aus Kompatibilitätsgründen weiterhin
-`service-pauser`. Alle verbleibenden `service-pauser`-Pfade oder Befehle unten beziehen sich
-auf diese Kompatibilitätsschnittstellen, nicht auf die Erweiterungs-UUID.
+gettext-Domain und Settings-Schema verwenden alle den Loadshed-Namen.
 
 ## Dienste konfigurieren
 
 Öffne die Erweiterungseinstellungen in GNOME Extensions, um den eingebauten Wartungskatalog
 hinzuzufügen, zu entfernen, zu speichern, neu zu laden oder wiederherzustellen. Der Standardkatalog
-wird nur installiert, wenn `/etc/service-pauser/units.json` noch nicht existiert; Aktualisierungen
+wird nur installiert, wenn `/etc/loadshed/units.json` noch nicht existiert; Aktualisierungen
 behalten deine bestehende Konfiguration. Jeder Dienst kann unabhängig aktiviert oder deaktiviert
 werden. Wird ein Dienst deaktiviert oder ersetzt, während der Pause-Schalter aktiv ist, wird nur
 dieser Dienst freigegeben; die anderen verwalteten Dienste bleiben pausiert.
@@ -52,7 +50,7 @@ dieser Dienst freigegeben; die anderen verwalteten Dienste bleiben pausiert.
 Führe nach einer Aktualisierung der Erweiterung `./install.sh` aus, damit Helper und sudoers-Regeln
 die Konfigurations- und Erzwingungsbefehle enthalten.
 
-Fortgeschrittene Nutzer können `/etc/service-pauser/units.json` weiterhin als root direkt bearbeiten.
+Fortgeschrittene Nutzer können `/etc/loadshed/units.json` weiterhin als root direkt bearbeiten.
 Eingebaute Katalogeinträge sind als optional markiert, sodass nicht installierte Dienste auf der
 Maschine still ignoriert werden. Benutzerdefinierte Einträge sind standardmäßig nicht optional,
 damit Fehler im Menü sichtbar bleiben. Eintragsformat:
@@ -136,7 +134,7 @@ Launcher oder zusätzliche Flags benötigt, zum Beispiel eine Tray-/Hintergrundo
 ## Manuelle Wiederherstellung
 
 ```bash
-sudo /usr/local/bin/service-pauser-helper status
-sudo /usr/local/bin/service-pauser-helper resume
-sudo /usr/local/bin/service-pauser-helper config-get
+sudo /usr/local/bin/loadshed-helper status
+sudo /usr/local/bin/loadshed-helper resume
+sudo /usr/local/bin/loadshed-helper config-get
 ```

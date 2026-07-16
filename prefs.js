@@ -5,9 +5,9 @@ import Gtk from 'gi://Gtk';
 import { ExtensionPreferences } from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 import { lookupTargetSchema } from './gsettingsTargets.js';
 
-const SCHEMA_ID = 'org.gnome.shell.extensions.service-pauser';
-const HELPER_INSTALL_PATH = '/usr/local/bin/service-pauser-helper';
-const CONFIG_PATH = '/etc/service-pauser/units.json';
+const SCHEMA_ID = 'org.gnome.shell.extensions.loadshed';
+const HELPER_INSTALL_PATH = '/usr/local/bin/loadshed-helper';
+const CONFIG_PATH = '/etc/loadshed/units.json';
 const VALID_ID_RE = /^[A-Za-z0-9_.@:-]+$/;
 const VALID_SERVICE_RE = /^[A-Za-z0-9_.@:-]+\.service$/;
 const VALID_TIMER_RE = /^[A-Za-z0-9_.@:-]+\.timer$/;
@@ -134,7 +134,7 @@ const SIGNAL_APP_PRESET = {
     enabled: true,
 };
 
-export default class ServicePauserPrefs extends ExtensionPreferences {
+export default class LoadshedPrefs extends ExtensionPreferences {
     fillPreferencesWindow(window) {
         this._ = this.gettext.bind(this);
         this._helper = new HelperClient();

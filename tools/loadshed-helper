@@ -8,9 +8,9 @@ import subprocess
 import sys
 import time
 
-CONFIG_DIR = "/etc/service-pauser"
+CONFIG_DIR = "/etc/loadshed"
 CONFIG_PATH = f"{CONFIG_DIR}/units.json"
-STATE_DIR = "/run/service-pauser"
+STATE_DIR = "/run/loadshed"
 STATE_PATH = f"{STATE_DIR}/state.json"
 CGROUP_ROOT = "/sys/fs/cgroup"
 
@@ -18,7 +18,7 @@ VALID_ID_RE = re.compile(r"^[A-Za-z0-9_.@:-]+$")
 VALID_UNIT_RE = re.compile(r"^[A-Za-z0-9_.@:\\-]+\.(service|timer)$")
 
 
-class ServicePauserError(Exception):
+class LoadshedError(Exception):
     pass
 
 
@@ -40,25 +40,25 @@ def fail(message, action="error"):
 
 def require_root():
     if os.geteuid() != 0:
-        raise ServicePauserError("service-pauser-helper must run as root")
+        raise LoadshedError("loadshed-helper must run as root")
 
 
 def require_systemctl():
     if shutil.which("systemctl") is None:
-        raise ServicePauserError("systemctl was not found")
+        raise LoadshedError("systemctl was not found")
 
 
 def validate_unit_name(unit, suffix):
     if not isinstance(unit, str) or not VALID_UNIT_RE.match(unit):
-        raise ServicePauserError(f"invalid unit name: {unit!r}")
+        raise LoadshedError(f"invalid unit name: {unit!r}")
     if not unit.endswith(suffix):
-        raise ServicePauserError(f"expected a {suffix} unit: {unit}")
+        raise LoadshedError(f"expected a {suffix} unit: {unit}")
     return unit
 
 
 def validate_entry(raw, index):
     if not isinstance(raw, dict):
-        raise ServicePauserError(f"unit entry #{index + 1} is not an object")
+        raise LoadshedError(f"unit entry #{index + 1} is not an object")
 
     entry_id = raw.get("id")
     label = raw.get("label")
@@ -68,15 +68,15 @@ def validate_entry(raw, index):
     enabled = raw.get("enabled", True)
 
     if not isinstance(entry_id, str) or not VALID_ID_RE.match(entry_id.strip()):
-        raise ServicePauserError(f"invalid id in unit entry #{index + 1}")
+        raise LoadshedError(f"invalid id in unit entry #{index + 1}")
     if not isinstance(label, str) or not label.strip():
-        raise ServicePauserError(f"invalid label in unit entry {entry_id}")
+        raise LoadshedError(f"invalid label in unit entry {entry_id}")
     if not isinstance(service, str):
-        raise ServicePauserError(f"invalid service in unit entry {entry_id}")
+        raise LoadshedError(f"invalid service in unit entry {entry_id}")
     if not isinstance(optional, bool):
-        raise ServicePauserError(f"invalid optional flag in unit entry {entry_id}")
+        raise LoadshedError(f"invalid optional flag in unit entry {entry_id}")
     if not isinstance(enabled, bool):
-        raise ServicePauserError(f"invalid enabled flag in unit entry {entry_id}")
+        raise LoadshedError(f"invalid enabled flag in unit entry {entry_id}")
 
     entry_id = entry_id.strip()
     service = validate_unit_name(service.strip(), ".service")
@@ -97,16 +97,16 @@ def validate_entry(raw, index):
 
 def validate_units(raw_units):
     if not isinstance(raw_units, list):
-        raise ServicePauserError("configuration root must be a JSON list")
+        raise LoadshedError("configuration root must be a JSON list")
 
     units = [validate_entry(raw, index) for index, raw in enumerate(raw_units)]
     seen_ids = set()
     seen_services = set()
     for unit in units:
         if unit["id"] in seen_ids:
-            raise ServicePauserError(f"duplicate unit id: {unit['id']}")
+            raise LoadshedError(f"duplicate unit id: {unit['id']}")
         if unit["service"] in seen_services:
-            raise ServicePauserError(f"duplicate service unit: {unit['service']}")
+            raise LoadshedError(f"duplicate service unit: {unit['service']}")
         seen_ids.add(unit["id"])
         seen_services.add(unit["service"])
     return units
@@ -116,12 +116,12 @@ def load_units():
     try:
         st = os.stat(CONFIG_PATH)
     except FileNotFoundError as exc:
-        raise ServicePauserError(f"configuration missing: {CONFIG_PATH}") from exc
+        raise LoadshedError(f"configuration missing: {CONFIG_PATH}") from exc
 
     if st.st_uid != 0:
-        raise ServicePauserError(f"configuration must be owned by root: {CONFIG_PATH}")
+        raise LoadshedError(f"configuration must be owned by root: {CONFIG_PATH}")
     if st.st_mode & (stat.S_IWGRP | stat.S_IWOTH):
-        raise ServicePauserError(f"configuration must not be group/world writable: {CONFIG_PATH}")
+        raise LoadshedError(f"configuration must not be group/world writable: {CONFIG_PATH}")
 
     with open(CONFIG_PATH, "r", encoding="utf-8") as config_file:
         raw_units = json.load(config_file)
@@ -225,7 +225,7 @@ def systemctl(args, check=False):
     )
     if check and result.returncode != 0:
         detail = result.stderr.strip() or result.stdout.strip() or f"exit {result.returncode}"
-        raise ServicePauserError(f"systemctl {' '.join(args)} failed: {detail}")
+        raise LoadshedError(f"systemctl {' '.join(args)} failed: {detail}")
     return result
 
 
@@ -311,13 +311,13 @@ def catalog_status_payload(units):
 def cgroup_file_from_status(status, filename):
     control_group = status.get("ControlGroup")
     if not isinstance(control_group, str) or not control_group.startswith("/"):
-        raise ServicePauserError("unit control group is not available")
+        raise LoadshedError("unit control group is not available")
 
     rel_path = control_group.lstrip("/")
     cgroup_path = os.path.normpath(os.path.join(CGROUP_ROOT, rel_path))
     cgroup_root = os.path.normpath(CGROUP_ROOT)
     if cgroup_path == cgroup_root or not cgroup_path.startswith(f"{cgroup_root}/"):
-        raise ServicePauserError(f"refusing unexpected control group: {control_group}")
+        raise LoadshedError(f"refusing unexpected control group: {control_group}")
 
     return os.path.join(cgroup_path, filename)
 
@@ -325,7 +325,7 @@ def cgroup_file_from_status(status, filename):
 def cgroup_frozen_from_status(status):
     try:
         events_path = cgroup_file_from_status(status, "cgroup.events")
-    except ServicePauserError:
+    except LoadshedError:
         return False
 
     try:
@@ -350,7 +350,7 @@ def set_cgroup_freeze(unit, frozen):
             freeze_file.write(f"{requested}\n")
     except OSError as exc:
         action = "freeze" if frozen else "thaw"
-        raise ServicePauserError(f"cgroup {action} failed for {unit}: {exc}") from exc
+        raise LoadshedError(f"cgroup {action} failed for {unit}: {exc}") from exc
 
     deadline = time.monotonic() + 2.0
     while time.monotonic() < deadline:
@@ -359,7 +359,7 @@ def set_cgroup_freeze(unit, frozen):
         time.sleep(0.05)
 
     action = "freeze" if frozen else "thaw"
-    raise ServicePauserError(f"cgroup {action} timed out for {unit}")
+    raise LoadshedError(f"cgroup {action} timed out for {unit}")
 
 
 def freeze_service(unit):
@@ -370,8 +370,8 @@ def freeze_service(unit):
     detail = result.stderr.strip() or result.stdout.strip() or f"exit {result.returncode}"
     try:
         set_cgroup_freeze(unit, True)
-    except ServicePauserError as exc:
-        raise ServicePauserError(
+    except LoadshedError as exc:
+        raise LoadshedError(
             f"systemctl freeze {unit} failed: {detail}; fallback {exc}"
         ) from exc
 
@@ -407,8 +407,8 @@ def pause_units(units):
             if timer:
                 timer_status = show_unit(timer)
                 if not unit_loaded(timer_status) and not unit.get("optional"):
-                    raise ServicePauserError(f"timer not loaded: {timer}")
-                if unit_loaded(timer_status) and not entry_state.get("timer_stopped") and timer_status["ActiveState"] == "active":
+                    raise LoadshedError(f"timer not loaded: {timer}")
+                if unit_loaded(timer_status) and timer_status["ActiveState"] == "active":
                     systemctl(["stop", timer], check=True)
                     entry_state["timer_stopped"] = True
 
@@ -416,7 +416,7 @@ def pause_units(units):
             if not unit_loaded(service_status):
                 if unit.get("optional"):
                     continue
-                raise ServicePauserError(f"service not loaded: {unit['service']}")
+                raise LoadshedError(f"service not loaded: {unit['service']}")
 
             service_active = service_status["ActiveState"] in ("active", "activating")
             service_frozen = (
@@ -430,7 +430,7 @@ def pause_units(units):
             elif not service_active and not service_frozen and entry_state.get("service_frozen"):
                 entry_state["service_frozen"] = False
                 entry_state.pop("freeze_method", None)
-        except ServicePauserError as exc:
+        except LoadshedError as exc:
             errors.append(f"{unit['label']}: {exc}")
 
         if entry_state.get("service_frozen") or entry_state.get("timer_stopped"):
@@ -488,7 +488,7 @@ def resume_units(units, entry_ids=None):
 
         try:
             unit = state_unit_from_entry(entry_id, entry_state, configured)
-        except ServicePauserError as exc:
+        except LoadshedError as exc:
             errors.append(f"{entry_id}: {exc}")
             remaining[entry_id] = entry_state
             continue
@@ -506,14 +506,14 @@ def resume_units(units, entry_ids=None):
                     thaw_service(unit["service"], entry_state.get("freeze_method"))
                 keep_state["service_frozen"] = False
                 keep_state.pop("freeze_method", None)
-            except ServicePauserError as exc:
+            except LoadshedError as exc:
                 errors.append(f"{unit['label']}: {exc}")
 
         if entry_state.get("timer_stopped") and unit.get("timer"):
             try:
                 systemctl(["start", unit["timer"]], check=True)
                 keep_state["timer_stopped"] = False
-            except ServicePauserError as exc:
+            except LoadshedError as exc:
                 errors.append(f"{unit['label']}: {exc}")
 
         if keep_state.get("service_frozen") or keep_state.get("timer_stopped"):
@@ -570,7 +570,7 @@ def status_payload(units, action, errors=None):
         try:
             unit = state_unit_from_entry(entry_id, entry_state, configured)
             entries.append(status_entry(unit, entry_state))
-        except ServicePauserError as exc:
+        except LoadshedError as exc:
             entries.append({
                 "id": entry_id,
                 "label": entry_id,
@@ -642,7 +642,7 @@ def main():
     action = sys.argv[1] if len(sys.argv) == 2 else None
     valid_actions = {"status", "pause", "resume", "toggle", "enforce", "config-get", "config-set", "catalog-status"}
     if action not in valid_actions:
-        return fail("usage: service-pauser-helper status|pause|resume|toggle|enforce|config-get|config-set|catalog-status")
+        return fail("usage: loadshed-helper status|pause|resume|toggle|enforce|config-get|config-set|catalog-status")
 
     try:
         require_root()
@@ -661,7 +661,7 @@ def main():
         if action == "config-set":
             raw_config = sys.stdin.read()
             if not raw_config.strip():
-                raise ServicePauserError("empty configuration")
+                raise LoadshedError("empty configuration")
             old_units = load_units()
             units = validate_units(json.loads(raw_config))
             require_systemctl()
@@ -708,7 +708,7 @@ def main():
         payload = status_payload(units, action, errors)
         json_print(payload)
         return 0 if payload["ok"] else 1
-    except (OSError, json.JSONDecodeError, ServicePauserError) as exc:
+    except (OSError, json.JSONDecodeError, LoadshedError) as exc:
         return fail(str(exc), action=action)
 
 

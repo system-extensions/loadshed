@@ -2,16 +2,16 @@ import Gio from 'gi://Gio';
 import { GSettingsTargets } from '../gsettingsTargets.js';
 
 const managerSettings = new Gio.Settings({
-    schema_id: 'org.gnome.shell.extensions.service-pauser',
+    schema_id: 'org.gnome.shell.extensions.loadshed',
 });
 const targetSettings = new Gio.Settings({
-    schema_id: 'org.example.service-pauser-target',
+    schema_id: 'org.example.loadshed-target',
 });
 
 const target = {
     id: 'test-target',
     label: 'Test target',
-    schema: 'org.example.service-pauser-target',
+    schema: 'org.example.loadshed-target',
     key: 'active',
     pause_value: false,
     enabled: true,

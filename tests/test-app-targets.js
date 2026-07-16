@@ -2,7 +2,7 @@ import Gio from 'gi://Gio';
 import { AppTargets } from '../appTargets.js';
 
 const managerSettings = new Gio.Settings({
-    schema_id: 'org.gnome.shell.extensions.service-pauser',
+    schema_id: 'org.gnome.shell.extensions.loadshed',
 });
 
 class FakeRunner {

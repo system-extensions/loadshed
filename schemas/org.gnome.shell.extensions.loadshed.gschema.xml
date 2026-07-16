@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist>
-  <schema id="org.gnome.shell.extensions.service-pauser" path="/org/gnome/shell/extensions/service-pauser/">
+  <schema id="org.gnome.shell.extensions.loadshed" path="/org/gnome/shell/extensions/loadshed/">
     <key name="show-quick-settings" type="b">
       <default>true</default>
       <summary>Show Quick Settings toggle</summary>

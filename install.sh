@@ -3,18 +3,19 @@ set -euo pipefail
 
 EXT_UUID="loadshed@yurij.de"
 LEGACY_EXT_UUID="service-pauser@yurij.de"
-HELPER_NAME="service-pauser-helper"
+HELPER_NAME="loadshed-helper"
 HELPER_INSTALL_PATH="/usr/local/bin/${HELPER_NAME}"
-CONFIG_DIR="/etc/service-pauser"
+CONFIG_DIR="/etc/loadshed"
 CONFIG_PATH="${CONFIG_DIR}/units.json"
-SUDOERS_FILE="/etc/sudoers.d/service-pauser"
+SUDOERS_FILE="/etc/sudoers.d/loadshed"
+LEGACY_CONFIG_PATH="/etc/service-pauser/units.json"
+LEGACY_SUDOERS_FILE="/etc/sudoers.d/service-pauser"
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 helper_src="${script_dir}/tools/${HELPER_NAME}"
 units_src="${script_dir}/tools/units.default.json"
-schema_src="${script_dir}/schemas/org.gnome.shell.extensions.service-pauser.gschema.xml"
-translation_src="${script_dir}/po/de.po"
+schema_src="${script_dir}/schemas/org.gnome.shell.extensions.loadshed.gschema.xml"
 
 if [[ ! -f "${helper_src}" ]]; then
   echo "Helper not found: ${helper_src}" >&2
@@ -86,19 +87,26 @@ bundle_source="${pack_dir}/source"
   "${script_dir}/fileTargets.js" \
   "${script_dir}/stylesheet.css" \
   "${script_dir}/README.md" \
+  "${script_dir}/README.de.md" \
+  "${script_dir}/README.es.md" \
   "${bundle_source}/"
 "${as_user[@]}" install -m 0755 "${script_dir}/install.sh" "${bundle_source}/install.sh"
 "${as_user[@]}" install -m 0755 "${helper_src}" "${bundle_source}/tools/${HELPER_NAME}"
 "${as_user[@]}" install -m 0644 "${units_src}" "${bundle_source}/tools/units.default.json"
 "${as_user[@]}" install -m 0644 "${schema_src}" "${bundle_source}/schemas/"
-"${as_user[@]}" install -m 0644 "${translation_src}" "${bundle_source}/po/"
+for translation_src in "${script_dir}"/po/*.po; do
+  [[ -e "${translation_src}" ]] || continue
+  "${as_user[@]}" install -m 0644 "${translation_src}" "${bundle_source}/po/"
+done
 
 echo "Packing extension bundle"
 (cd "${bundle_source}" && "${as_user[@]}" gnome-extensions pack . --force \
   --podir=po \
-  --gettext-domain=service-pauser \
+  --gettext-domain=loadshed \
   --extra-source=install.sh \
   --extra-source=README.md \
+  --extra-source=README.de.md \
+  --extra-source=README.es.md \
   --extra-source=appTargets.js \
   --extra-source=gsettingsTargets.js \
   --extra-source=fileTargets.js \
@@ -119,14 +127,17 @@ if sudo test -e "${CONFIG_PATH}"; then
   echo "Keeping existing ${CONFIG_PATH}"
   sudo chown root:root "${CONFIG_PATH}"
   sudo chmod 0644 "${CONFIG_PATH}"
+elif sudo test -e "${LEGACY_CONFIG_PATH}"; then
+  echo "Migrating existing configuration from ${LEGACY_CONFIG_PATH} to ${CONFIG_PATH}"
+  sudo install -o root -g root -m 0644 "${LEGACY_CONFIG_PATH}" "${CONFIG_PATH}"
 else
   echo "Installing default units to ${CONFIG_PATH}"
   sudo install -o root -g root -m 0644 "${units_src}" "${CONFIG_PATH}"
 fi
 
 sudo tee "${SUDOERS_FILE}" >/dev/null <<EOF
-Cmnd_Alias SERVICE_PAUSER = ${HELPER_INSTALL_PATH} status, ${HELPER_INSTALL_PATH} pause, ${HELPER_INSTALL_PATH} resume, ${HELPER_INSTALL_PATH} toggle, ${HELPER_INSTALL_PATH} enforce, ${HELPER_INSTALL_PATH} config-get, ${HELPER_INSTALL_PATH} config-set, ${HELPER_INSTALL_PATH} catalog-status
-${target_user} ALL=(root) NOPASSWD: SERVICE_PAUSER
+Cmnd_Alias LOADSHED_HELPER = ${HELPER_INSTALL_PATH} status, ${HELPER_INSTALL_PATH} pause, ${HELPER_INSTALL_PATH} resume, ${HELPER_INSTALL_PATH} toggle, ${HELPER_INSTALL_PATH} enforce, ${HELPER_INSTALL_PATH} config-get, ${HELPER_INSTALL_PATH} config-set, ${HELPER_INSTALL_PATH} catalog-status
+${target_user} ALL=(root) NOPASSWD: LOADSHED_HELPER
 EOF
 
 sudo chmod 0440 "${SUDOERS_FILE}"
@@ -134,6 +145,9 @@ sudo visudo -c -f "${SUDOERS_FILE}" >/dev/null
 
 echo "Done."
 echo "Enable after GNOME Shell reload/login with: gnome-extensions enable ${EXT_UUID}"
+if sudo test -e "${LEGACY_SUDOERS_FILE}"; then
+  echo "Legacy sudoers file detected. Remove after verifying the new helper works: sudo rm -f ${LEGACY_SUDOERS_FILE}"
+fi
 if "${as_user[@]}" gnome-extensions info "${LEGACY_EXT_UUID}" >/dev/null 2>&1; then
   echo "Legacy extension UUID detected. Disable the old copy after migration with: gnome-extensions disable ${LEGACY_EXT_UUID}"
 fi

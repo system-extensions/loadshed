@@ -4,8 +4,8 @@
 
 GNOME Shell extension for pausing selected background maintenance services from Quick Settings.
 
-The extension delegates privileged work to `/usr/local/bin/service-pauser-helper`.
-The helper reads and writes root-owned units in `/etc/service-pauser/units.json` and uses
+The extension delegates privileged work to `/usr/local/bin/loadshed-helper`.
+The helper reads and writes root-owned units in `/etc/loadshed/units.json` and uses
 `systemctl freeze`/`systemctl thaw` for services. Timers configured next to a service
 are stopped while paused and only restarted if the helper stopped them. While the
 Quick Settings button is paused, refreshes enforce that state again for configured
@@ -36,15 +36,13 @@ gnome-extensions enable loadshed@yurij.de
 
 The source checkout is named `loadshed`, while the GNOME Shell UUID and installed
 extension directory are `loadshed@yurij.de`. The helper, config directory,
-gettext domain, and settings schema still use `service-pauser` for compatibility
-with existing installations. Any remaining `service-pauser` paths or commands
-below refer to those compatibility interfaces, not to the extension UUID.
+gettext domain, and settings schema all use the Loadshed name.
 
 ## Configure Services
 
 Open the extension preferences in GNOME Extensions to add, remove, save, reload,
 or restore the built-in maintenance catalog. The default catalog is installed only
-when `/etc/service-pauser/units.json` does not already exist; updates keep your
+when `/etc/loadshed/units.json` does not already exist; updates keep your
 existing configuration. Each service can be enabled or disabled independently.
 Disabling or replacing a service while the pause button is active releases only
 that service; the other managed services remain paused.
@@ -52,7 +50,7 @@ that service; the other managed services remain paused.
 Run `./install.sh` after updating the extension so the helper and sudoers rules
 include the configuration and enforce commands.
 
-Advanced users can still edit `/etc/service-pauser/units.json` as root. Built-in
+Advanced users can still edit `/etc/loadshed/units.json` as root. Built-in
 catalog entries are marked optional, so services not installed on the machine are
 ignored silently. Custom entries are not optional by default, so mistakes remain
 visible in the menu. Entry format:
@@ -141,7 +139,7 @@ launcher or extra flags, for example a tray/background option.
 ## Manual Recovery
 
 ```bash
-sudo /usr/local/bin/service-pauser-helper status
-sudo /usr/local/bin/service-pauser-helper resume
-sudo /usr/local/bin/service-pauser-helper config-get
+sudo /usr/local/bin/loadshed-helper status
+sudo /usr/local/bin/loadshed-helper resume
+sudo /usr/local/bin/loadshed-helper config-get
 ```

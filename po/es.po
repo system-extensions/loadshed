@@ -1,0 +1,608 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: loadshed 1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-10 17:45+0200\n"
+"PO-Revision-Date: 2026-07-16 00:00+0200\n"
+"Last-Translator: \n"
+"Language-Team: Spanish\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: extension.js:100
+msgid "Helper command failed"
+msgstr "El comando del helper falló"
+
+#: extension.js:140 extension.js:155 extension.js:285 extension.js:325
+msgid "Loadshed"
+msgstr "Deslastre"
+
+#: extension.js:141
+msgid "Loading"
+msgstr "Cargando"
+
+#: extension.js:155
+msgid "Background services"
+msgstr "Servicios en segundo plano"
+
+#: extension.js:158
+msgid "Refresh"
+msgstr "Actualizar"
+
+#: extension.js:159
+msgid "Settings"
+msgstr "Ajustes"
+
+#: extension.js:160
+msgid "Setup help"
+msgstr "Ayuda de configuración"
+
+#: extension.js:236
+msgid "Refreshing"
+msgstr "Actualizando"
+
+#: extension.js:257
+msgid "Pausing"
+msgstr "Pausando"
+
+#: extension.js:257
+msgid "Resuming"
+msgstr "Reanudando"
+
+#: extension.js:277 prefs.js:290 prefs.js:314 prefs.js:380 prefs.js:648
+#: prefs.js:924
+msgid "Unknown error"
+msgstr "Error desconocido"
+
+#: extension.js:279 prefs.js:290 prefs.js:380
+msgid "Setup required"
+msgstr "Configuración requerida"
+
+#: extension.js:284
+msgid "Error"
+msgstr "Error"
+
+#: extension.js:290
+msgid "Loadshed setup required"
+msgstr "Configuración de Deslastre requerida"
+
+#: extension.js:291
+msgid ""
+"Run install.sh from the extension directory, then reload GNOME Shell or re-"
+"enable the extension."
+msgstr ""
+"Ejecuta install.sh desde el directorio de la extensión y después recarga "
+"GNOME Shell o vuelve a activar la extensión."
+
+#: extension.js:314 prefs.js:395
+msgid "No services configured"
+msgstr "No hay servicios configurados"
+
+#: extension.js:316 extension.js:417
+#, javascript-format
+msgid "1 paused"
+msgid_plural "%d paused"
+msgstr[0] "1 pausado"
+msgstr[1] "%d pausados"
+
+#: extension.js:318
+#, javascript-format
+msgid "1 running"
+msgid_plural "%d running"
+msgstr[0] "1 en ejecución"
+msgstr[1] "%d en ejecución"
+
+#: extension.js:320
+msgid "Nothing running"
+msgstr "Nada en ejecución"
+
+#: extension.js:324
+msgid "Partial error"
+msgstr "Error parcial"
+
+#: extension.js:351
+msgid "Unknown"
+msgstr "Desconocido"
+
+#: extension.js:410
+#, javascript-format
+msgid "1 service paused"
+msgid_plural "%d services paused"
+msgstr[0] "1 servicio pausado"
+msgstr[1] "%d servicios pausados"
+
+#: extension.js:414
+#, javascript-format
+msgid "1 service released"
+msgid_plural "%d services released"
+msgstr[0] "1 servicio liberado"
+msgstr[1] "%d servicios liberados"
+
+#: extension.js:418
+#, javascript-format
+msgid "1 released"
+msgid_plural "%d released"
+msgstr[0] "1 liberado"
+msgstr[1] "%d liberados"
+
+#: extension.js:419
+#, javascript-format
+msgid "%s, %s"
+msgstr "%s, %s"
+
+#: prefs.js:78
+msgid "No service unit"
+msgstr "Sin unidad de servicio"
+
+#: prefs.js:90
+msgid "No schema/key"
+msgstr "Sin schema/clave"
+
+#: prefs.js:98
+msgid "No app target"
+msgstr "Sin objetivo de app"
+
+#: prefs.js:146
+msgid "General"
+msgstr "General"
+
+#: prefs.js:149
+msgid "Show Quick Settings toggle"
+msgstr "Mostrar interruptor en ajustes rápidos"
+
+#: prefs.js:150
+msgid "Resume on extension disable"
+msgstr "Reanudar al desactivar la extensión"
+
+#: prefs.js:151
+msgid "Refresh interval (s)"
+msgstr "Intervalo de actualización (s)"
+
+#: prefs.js:154 prefs.js:204
+msgid "Services"
+msgstr "Servicios"
+
+#: prefs.js:155
+msgid "Edit background maintenance services managed by Loadshed."
+msgstr "Edita los servicios de mantenimiento en segundo plano gestionados por Deslastre."
+
+#: prefs.js:160 prefs.js:276
+msgid "Loading services"
+msgstr "Cargando servicios"
+
+#: prefs.js:166
+msgid "Configured services"
+msgstr "Servicios configurados"
+
+#: prefs.js:170 prefs.js:176
+msgid "GSettings switches"
+msgstr "Interruptores GSettings"
+
+#: prefs.js:171
+msgid ""
+"Toggle other extensions’ GSettings booleans (like a scan/auto-run switch) "
+"together with the pause button. Applied directly, no privileged helper "
+"needed."
+msgstr ""
+"Alterna booleanos de GSettings de otras extensiones (como un interruptor de "
+"escaneo o autoarranque) junto con el botón de pausa. Se aplica directamente, "
+"sin helper privilegiado."
+
+#: prefs.js:182
+msgid "Configured switches"
+msgstr "Interruptores configurados"
+
+#: prefs.js:186 prefs.js:192
+msgid "Desktop apps"
+msgstr "Aplicaciones de escritorio"
+
+#: prefs.js:187
+msgid ""
+"Stop Flatpak or Snap desktop apps together with the pause button. Snap "
+"daemons can be added as normal services."
+msgstr ""
+"Detén aplicaciones de escritorio Flatpak o Snap junto con el botón de pausa. "
+"Los daemons de Snap pueden añadirse como servicios normales."
+
+#: prefs.js:198
+msgid "Configured desktop apps"
+msgstr "Aplicaciones de escritorio configuradas"
+
+#: prefs.js:201
+msgid "System files"
+msgstr "Archivos del sistema"
+
+#: prefs.js:203
+msgid "Helper"
+msgstr "Helper"
+
+#: prefs.js:214
+msgid "Service configuration"
+msgstr "Configuración de servicios"
+
+#: prefs.js:215
+msgid "Changes are written through the privileged helper."
+msgstr "Los cambios se escriben mediante el helper privilegiado."
+
+#: prefs.js:223
+msgid "Add service"
+msgstr "Añadir servicio"
+
+#: prefs.js:224
+msgid "Restore built-in catalog"
+msgstr "Restaurar catálogo integrado"
+
+#: prefs.js:225
+msgid "Reload services"
+msgstr "Recargar servicios"
+
+#: prefs.js:226
+msgid "Save services"
+msgstr "Guardar servicios"
+
+#: prefs.js:287
+msgid "Services loaded"
+msgstr "Servicios cargados"
+
+#: prefs.js:300
+msgid "Fix service entries"
+msgstr "Corregir entradas de servicio"
+
+#: prefs.js:305
+msgid "Saving services"
+msgstr "Guardando servicios"
+
+#: prefs.js:311
+msgid "Service configuration saved"
+msgstr "Configuración de servicios guardada"
+
+#: prefs.js:314
+msgid "Save failed"
+msgstr "Error al guardar"
+
+#: prefs.js:332
+msgid "Service added"
+msgstr "Servicio añadido"
+
+#: prefs.js:332 prefs.js:679 prefs.js:954
+msgid "Fill in the new row, then save."
+msgstr "Rellena la nueva fila y después guarda."
+
+#: prefs.js:338
+msgid "Service removed"
+msgstr "Servicio eliminado"
+
+#: prefs.js:338 prefs.js:376
+msgid "Save services to apply this change."
+msgstr "Guarda los servicios para aplicar este cambio."
+
+#: prefs.js:347
+msgid "Loading built-in catalog"
+msgstr "Cargando catálogo integrado"
+
+#: prefs.js:375
+msgid "Built-in catalog restored"
+msgstr "Catálogo integrado restaurado"
+
+#: prefs.js:376
+msgid "All built-in services are already listed."
+msgstr "Todos los servicios integrados ya están listados."
+
+#: prefs.js:396
+msgid "Add a service or restore the built-in catalog."
+msgstr "Añade un servicio o restaura el catálogo integrado."
+
+#: prefs.js:405 prefs.js:443
+msgid "Unnamed service"
+msgstr "Servicio sin nombre"
+
+#: prefs.js:409 prefs.js:731 prefs.js:1031
+msgid "Label"
+msgstr "Etiqueta"
+
+#: prefs.js:413
+msgid "Service unit"
+msgstr "Unidad de servicio"
+
+#: prefs.js:417
+msgid "Timer unit (optional)"
+msgstr "Unidad de temporizador (opcional)"
+
+#: prefs.js:421 prefs.js:743 prefs.js:1049
+msgid "Use with pause button"
+msgstr "Usar con el botón de pausa"
+
+#: prefs.js:428 prefs.js:429
+msgid "Remove service"
+msgstr "Eliminar servicio"
+
+#: prefs.js:484
+msgid "Service"
+msgstr "Servicio"
+
+#: prefs.js:490 prefs.js:823 prefs.js:1146
+msgid "Label is required"
+msgstr "La etiqueta es obligatoria"
+
+#: prefs.js:493
+msgid "Service unit is required"
+msgstr "La unidad de servicio es obligatoria"
+
+#: prefs.js:495
+msgid "Service unit must end in .service"
+msgstr "La unidad de servicio debe terminar en .service"
+
+#: prefs.js:497
+msgid "Duplicate service unit"
+msgstr "Unidad de servicio duplicada"
+
+#: prefs.js:500
+msgid "Timer unit must end in .timer"
+msgstr "La unidad de temporizador debe terminar en .timer"
+
+#: prefs.js:563
+msgid "Custom service"
+msgstr "Servicio personalizado"
+
+#: prefs.js:566
+msgid "Not available on this system"
+msgstr "No disponible en este sistema"
+
+#: prefs.js:569
+msgid "Available and active"
+msgstr "Disponible y activo"
+
+#: prefs.js:571
+msgid "Available but currently inactive"
+msgstr "Disponible, pero actualmente inactivo"
+
+#: prefs.js:612
+msgid "Desktop app configuration"
+msgstr "Configuración de aplicaciones de escritorio"
+
+#: prefs.js:613
+msgid "Applied in the user session, no privileged helper needed."
+msgstr "Se aplica en la sesión de usuario, sin helper privilegiado."
+
+#: prefs.js:621
+msgid "Add desktop app"
+msgstr "Añadir aplicación de escritorio"
+
+#: prefs.js:622
+msgid "Restore Signal default"
+msgstr "Restaurar valor predeterminado de Signal"
+
+#: prefs.js:623
+msgid "Reload desktop apps"
+msgstr "Recargar aplicaciones de escritorio"
+
+#: prefs.js:624
+msgid "Save desktop apps"
+msgstr "Guardar aplicaciones de escritorio"
+
+#: prefs.js:644
+msgid "Desktop apps loaded"
+msgstr "Aplicaciones de escritorio cargadas"
+
+#: prefs.js:648
+msgid "Failed to load desktop apps"
+msgstr "No se pudieron cargar las aplicaciones de escritorio"
+
+#: prefs.js:657
+msgid "Fix desktop apps"
+msgstr "Corregir aplicaciones de escritorio"
+
+#: prefs.js:664
+msgid "Desktop apps saved"
+msgstr "Aplicaciones de escritorio guardadas"
+
+#: prefs.js:679
+msgid "Desktop app added"
+msgstr "Aplicación de escritorio añadida"
+
+#: prefs.js:685
+msgid "Desktop app removed"
+msgstr "Aplicación de escritorio eliminada"
+
+#: prefs.js:685 prefs.js:699 prefs.js:702
+msgid "Save desktop apps to apply this change."
+msgstr "Guarda las aplicaciones de escritorio para aplicar este cambio."
+
+#: prefs.js:699
+msgid "Signal default updated"
+msgstr "Valor predeterminado de Signal actualizado"
+
+#: prefs.js:702
+msgid "Signal default added"
+msgstr "Valor predeterminado de Signal añadido"
+
+#: prefs.js:717
+msgid "No desktop apps configured"
+msgstr "No hay aplicaciones de escritorio configuradas"
+
+#: prefs.js:718
+msgid "Add an app or restore the Signal default."
+msgstr "Añade una app o restaura el valor predeterminado de Signal."
+
+#: prefs.js:727 prefs.js:765
+msgid "Unnamed desktop app"
+msgstr "Aplicación de escritorio sin nombre"
+
+#: prefs.js:732
+msgid "Kind (flatpak or snap)"
+msgstr "Tipo (flatpak o snap)"
+
+#: prefs.js:733
+msgid "App id"
+msgstr "ID de app"
+
+#: prefs.js:735
+msgid "Desktop id (optional)"
+msgstr "ID de escritorio (opcional)"
+
+#: prefs.js:739
+msgid "Start command (optional)"
+msgstr "Comando de inicio (opcional)"
+
+#: prefs.js:744
+msgid "Flatpak uses flatpak kill; Snap apps use process matching."
+msgstr "Flatpak usa flatpak kill; las apps Snap usan coincidencia de procesos."
+
+#: prefs.js:747 prefs.js:748
+msgid "Remove desktop app"
+msgstr "Eliminar aplicación de escritorio"
+
+#: prefs.js:817
+msgid "Desktop app"
+msgstr "Aplicación de escritorio"
+
+#: prefs.js:826
+msgid "Kind must be flatpak or snap"
+msgstr "El tipo debe ser flatpak o snap"
+
+#: prefs.js:829
+msgid "App id is required"
+msgstr "El ID de app es obligatorio"
+
+#: prefs.js:831
+msgid "Invalid app id"
+msgstr "ID de app no válido"
+
+#: prefs.js:834
+msgid "Duplicate desktop app"
+msgstr "Aplicación de escritorio duplicada"
+
+#: prefs.js:888
+msgid "Switch configuration"
+msgstr "Configuración de interruptores"
+
+#: prefs.js:889
+msgid "Applied directly via GSettings, no privileged helper needed."
+msgstr "Se aplica directamente mediante GSettings, sin helper privilegiado."
+
+#: prefs.js:897
+msgid "Add switch"
+msgstr "Añadir interruptor"
+
+#: prefs.js:898
+msgid "Restore Folder Size default"
+msgstr "Restaurar valor predeterminado de Folder Size"
+
+#: prefs.js:899
+msgid "Reload switches"
+msgstr "Recargar interruptores"
+
+#: prefs.js:900
+msgid "Save switches"
+msgstr "Guardar interruptores"
+
+#: prefs.js:920
+msgid "Switches loaded"
+msgstr "Interruptores cargados"
+
+#: prefs.js:924
+msgid "Failed to load switches"
+msgstr "No se pudieron cargar los interruptores"
+
+#: prefs.js:933
+msgid "Fix GSettings switches"
+msgstr "Corregir interruptores GSettings"
+
+#: prefs.js:940
+msgid "GSettings switches saved"
+msgstr "Interruptores GSettings guardados"
+
+#: prefs.js:954
+msgid "Switch added"
+msgstr "Interruptor añadido"
+
+#: prefs.js:960
+msgid "Switch removed"
+msgstr "Interruptor eliminado"
+
+#: prefs.js:960 prefs.js:974 prefs.js:977
+msgid "Save switches to apply this change."
+msgstr "Guarda los interruptores para aplicar este cambio."
+
+#: prefs.js:974
+msgid "Folder Size default updated"
+msgstr "Valor predeterminado de Folder Size actualizado"
+
+#: prefs.js:977
+msgid "Folder Size default added"
+msgstr "Valor predeterminado de Folder Size añadido"
+
+#: prefs.js:999
+msgid "Schema not installed"
+msgstr "Schema no instalado"
+
+#: prefs.js:1003
+msgid "Key not found or not boolean"
+msgstr "Clave no encontrada o no booleana"
+
+#: prefs.js:1006
+msgid "Available"
+msgstr "Disponible"
+
+#: prefs.js:1017
+msgid "No GSettings switches configured"
+msgstr "No hay interruptores GSettings configurados"
+
+#: prefs.js:1018
+msgid "Add a switch or restore the Folder Size default."
+msgstr "Añade un interruptor o restaura el valor predeterminado de Folder Size."
+
+#: prefs.js:1027 prefs.js:1081
+msgid "Unnamed switch"
+msgstr "Interruptor sin nombre"
+
+#: prefs.js:1032
+msgid "Schema id"
+msgstr "ID de schema"
+
+#: prefs.js:1033
+msgid "Key"
+msgstr "Clave"
+
+#: prefs.js:1035
+msgid "Hide own toggle key (optional)"
+msgstr "Ocultar clave del propio interruptor (opcional)"
+
+#: prefs.js:1039
+msgid "Extension UUID (optional, for non-system-wide schemas)"
+msgstr "UUID de extensión (opcional, para schemas no instalados en todo el sistema)"
+
+#: prefs.js:1043
+msgid "Value while paused"
+msgstr "Valor durante la pausa"
+
+#: prefs.js:1058
+msgid "Get extension"
+msgstr "Obtener extensión"
+
+#: prefs.js:1065 prefs.js:1066
+msgid "Remove switch"
+msgstr "Eliminar interruptor"
+
+#: prefs.js:1140
+msgid "Switch"
+msgstr "Interruptor"
+
+#: prefs.js:1149
+msgid "Schema id is required"
+msgstr "El ID de schema es obligatorio"
+
+#: prefs.js:1152
+msgid "Key is required"
+msgstr "La clave es obligatoria"
+
+#: prefs.js:1157
+msgid "Duplicate schema/key"
+msgstr "Schema/clave duplicado"
+
+#: prefs.js:1160
+msgid "Own toggle key must differ from key"
+msgstr "La clave del propio interruptor debe diferir de la clave"

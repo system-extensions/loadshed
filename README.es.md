@@ -1,11 +1,11 @@
-# Loadshed
+# Deslastre (Loadshed)
 
 [English](README.md) | [Deutsch](README.de.md) | **Español**
 
-Extensión de GNOME Shell para pausar servicios de mantenimiento en segundo plano seleccionados desde los ajustes rápidos.
+Loadshed (deslastre) es una extensión de GNOME Shell para pausar servicios de mantenimiento en segundo plano seleccionados desde los ajustes rápidos.
 
-La extensión delega el trabajo privilegiado en `/usr/local/bin/service-pauser-helper`.
-El helper lee y escribe unidades propiedad de root en `/etc/service-pauser/units.json` y usa
+La extensión delega el trabajo privilegiado en `/usr/local/bin/loadshed-helper`.
+El helper lee y escribe unidades propiedad de root en `/etc/loadshed/units.json` y usa
 `systemctl freeze`/`systemctl thaw` para los servicios. Los temporizadores configurados junto a un
 servicio se detienen durante la pausa y solo se reinician si el helper los detuvo. Mientras el botón
 de los ajustes rápidos está pausado, las actualizaciones vuelven a aplicar ese estado a los servicios
@@ -36,15 +36,13 @@ gnome-extensions enable loadshed@yurij.de
 
 El checkout de código fuente se llama `loadshed`, mientras que la UUID de GNOME Shell y el directorio
 de la extensión instalada son `loadshed@yurij.de`. El helper, el directorio de configuración, el
-dominio gettext y el schema de ajustes siguen usando `service-pauser` por compatibilidad con
-instalaciones existentes. Cualquier ruta o comando `service-pauser` que aparezca abajo se refiere a
-esas interfaces de compatibilidad, no a la UUID de la extensión.
+dominio gettext y el schema de ajustes usan todos el nombre de Loadshed.
 
 ## Configurar servicios
 
 Abre las preferencias de la extensión en GNOME Extensions para añadir, eliminar, guardar, recargar o
 restaurar el catálogo de mantenimiento integrado. El catálogo predeterminado solo se instala cuando
-`/etc/service-pauser/units.json` aún no existe; las actualizaciones conservan tu configuración
+`/etc/loadshed/units.json` aún no existe; las actualizaciones conservan tu configuración
 existente. Cada servicio puede activarse o desactivarse de forma independiente. Si se desactiva o
 reemplaza un servicio mientras el botón de pausa está activo, solo se libera ese servicio; los demás
 servicios gestionados permanecen pausados.
@@ -52,7 +50,7 @@ servicios gestionados permanecen pausados.
 Ejecuta `./install.sh` después de actualizar la extensión para que el helper y las reglas sudoers
 incluyan los comandos de configuración y aplicación.
 
-Los usuarios avanzados pueden seguir editando `/etc/service-pauser/units.json` como root. Las entradas
+Los usuarios avanzados pueden seguir editando `/etc/loadshed/units.json` como root. Las entradas
 integradas del catálogo están marcadas como opcionales, por lo que los servicios no instalados en la
 máquina se ignoran silenciosamente. Las entradas personalizadas no son opcionales por defecto, para
 que los errores sigan visibles en el menú. Formato de entrada:
@@ -136,7 +134,7 @@ opción de bandeja o segundo plano.
 ## Recuperación manual
 
 ```bash
-sudo /usr/local/bin/service-pauser-helper status
-sudo /usr/local/bin/service-pauser-helper resume
-sudo /usr/local/bin/service-pauser-helper config-get
+sudo /usr/local/bin/loadshed-helper status
+sudo /usr/local/bin/loadshed-helper resume
+sudo /usr/local/bin/loadshed-helper config-get
 ```

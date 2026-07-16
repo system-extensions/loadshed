@@ -9,8 +9,8 @@ import unittest
 from unittest import mock
 
 
-HELPER_PATH = Path(__file__).resolve().parents[1] / "tools" / "service-pauser-helper"
-LOADER = importlib.machinery.SourceFileLoader("service_pauser_helper", str(HELPER_PATH))
+HELPER_PATH = Path(__file__).resolve().parents[1] / "tools" / "loadshed-helper"
+LOADER = importlib.machinery.SourceFileLoader("loadshed_helper", str(HELPER_PATH))
 SPEC = importlib.util.spec_from_loader(LOADER.name, LOADER)
 helper = importlib.util.module_from_spec(SPEC)
 LOADER.exec_module(helper)
@@ -37,7 +37,7 @@ def state_entry(entry_id, service=None, timer=None):
     }
 
 
-class ServicePauserHelperTests(unittest.TestCase):
+class LoadshedHelperTests(unittest.TestCase):
     def test_serialize_units_preserves_disabled_flag_only_when_false(self):
         serialized = helper.serialize_units([unit("active"), unit("disabled", enabled=False)])
 
@@ -129,6 +129,38 @@ class ServicePauserHelperTests(unittest.TestCase):
         self.assertEqual(payload["entries"], helper.serialize_units(old_units))
         pause_units.assert_called_once_with(old_units)
         save_config.assert_not_called()
+
+    def test_pause_units_stops_timer_restarted_after_saved_pause(self):
+        current_state = {
+            "entries": {
+                "alpha": {
+                    "service": "alpha.service",
+                    "timer": "alpha.timer",
+                    "service_frozen": False,
+                    "timer_stopped": True,
+                }
+            }
+        }
+        saved = []
+        systemctl_calls = []
+
+        def show_unit(name, include_freezer=False, extra_properties=None):
+            if name == "alpha.timer":
+                return {"LoadState": "loaded", "ActiveState": "active", "SubState": "waiting"}
+            return {"LoadState": "loaded", "ActiveState": "inactive", "SubState": "dead", "FreezerState": "running"}
+
+        with (
+            mock.patch.object(helper, "load_state", return_value=current_state),
+            mock.patch.object(helper, "save_state", side_effect=saved.append),
+            mock.patch.object(helper, "show_unit", side_effect=show_unit),
+            mock.patch.object(helper, "cgroup_frozen_from_status", return_value=False),
+            mock.patch.object(helper, "systemctl", side_effect=lambda args, check=False: systemctl_calls.append(args)),
+        ):
+            errors = helper.pause_units([unit("alpha", timer="alpha.timer")])
+
+        self.assertEqual(errors, [])
+        self.assertEqual(systemctl_calls, [["stop", "alpha.timer"]])
+        self.assertTrue(saved[0]["entries"]["alpha"]["timer_stopped"])
 
     def test_config_set_reapplies_pause_after_successful_save(self):
         old_units = [unit("alpha")]

@@ -1,19 +1,19 @@
-.service-pauser-entry {
+.loadshed-entry {
   padding-top: 1px;
   padding-bottom: 1px;
   min-height: 0;
 }
 
-.service-pauser-entry-content {
+.loadshed-entry-content {
   spacing: 6px;
   min-height: 0;
 }
 
-.service-pauser-entry-icon {
+.loadshed-entry-icon {
   icon-size: 1em;
 }
 
-.service-pauser-entry-label {
+.loadshed-entry-label {
   padding-top: 0;
   padding-bottom: 0;
 }

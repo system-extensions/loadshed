@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist>
-  <schema id="org.example.service-pauser-target" path="/org/example/service-pauser-target/">
+  <schema id="org.example.loadshed-target" path="/org/example/loadshed-target/">
     <key name="active" type="b">
       <default>true</default>
     </key>

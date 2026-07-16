@@ -12,14 +12,14 @@ import { AppTargets } from './appTargets.js';
 import { GSettingsTargets } from './gsettingsTargets.js';
 import { FileTargets } from './fileTargets.js';
 
-const HELPER_INSTALL_PATH = '/usr/local/bin/service-pauser-helper';
+const HELPER_INSTALL_PATH = '/usr/local/bin/loadshed-helper';
 const DEFAULT_REFRESH_INTERVAL = 10;
 
 function formatCountLabel(label, count) {
     return label.replace('%d', String(count));
 }
 
-class ServicePauserManager {
+class LoadshedManager {
     constructor(settings) {
         this._targets = new GSettingsTargets(settings);
         this._files = new FileTargets(settings);
@@ -143,8 +143,8 @@ class ServicePauserManager {
     }
 }
 
-const ServicePauserToggle = GObject.registerClass(
-class ServicePauserToggle extends QuickSettings.QuickMenuToggle {
+const LoadshedToggle = GObject.registerClass(
+class LoadshedToggle extends QuickSettings.QuickMenuToggle {
     _init(extensionObject, manager, indicator) {
         super._init({
             title: _('Loadshed'),
@@ -368,7 +368,7 @@ class ServicePauserToggle extends QuickSettings.QuickMenuToggle {
             this._addEntryItem(
                 this._hiddenEntriesLabel(hiddenEntries),
                 this._hiddenEntriesIcon(hiddenEntries),
-                'service-pauser-summary-entry'
+                'loadshed-summary-entry'
             );
         }
     }
@@ -377,23 +377,23 @@ class ServicePauserToggle extends QuickSettings.QuickMenuToggle {
         const item = new PopupMenu.PopupBaseMenuItem({
             reactive: false,
             can_focus: false,
-            style_class: `popup-menu-item service-pauser-entry ${extraStyleClass}`,
+            style_class: `popup-menu-item loadshed-entry ${extraStyleClass}`,
         });
         const box = new St.BoxLayout({
             vertical: false,
             x_expand: true,
-            style_class: 'popup-menu-item-content service-pauser-entry-content',
+            style_class: 'popup-menu-item-content loadshed-entry-content',
         });
         const icon = new St.Icon({
             icon_name: iconName,
-            style_class: 'popup-menu-icon service-pauser-entry-icon',
+            style_class: 'popup-menu-icon loadshed-entry-icon',
         });
         const title = new St.Label({
             text: label,
             x_expand: true,
             x_align: Clutter.ActorAlign.START,
             y_align: Clutter.ActorAlign.CENTER,
-            style_class: 'service-pauser-entry-label',
+            style_class: 'loadshed-entry-label',
         });
 
         box.add_child(icon);
@@ -458,8 +458,8 @@ class ServicePauserToggle extends QuickSettings.QuickMenuToggle {
     }
 });
 
-const ServicePauserIndicator = GObject.registerClass(
-class ServicePauserIndicator extends QuickSettings.SystemIndicator {
+const LoadshedIndicator = GObject.registerClass(
+class LoadshedIndicator extends QuickSettings.SystemIndicator {
     _init(extensionObject, manager) {
         super._init();
 
@@ -467,7 +467,7 @@ class ServicePauserIndicator extends QuickSettings.SystemIndicator {
         this._indicator.icon_name = 'media-playback-pause-symbolic';
         this._indicator.visible = false;
 
-        this._toggle = new ServicePauserToggle(extensionObject, manager, this._indicator);
+        this._toggle = new LoadshedToggle(extensionObject, manager, this._indicator);
         this.quickSettingsItems.push(this._toggle);
 
         Main.panel.statusArea.quickSettings.addExternalIndicator(this);
@@ -483,7 +483,7 @@ class ServicePauserIndicator extends QuickSettings.SystemIndicator {
     }
 });
 
-export default class ServicePauserExtension extends Extension {
+export default class LoadshedExtension extends Extension {
     constructor(metadata) {
         super(metadata);
         this._settings = null;
@@ -496,7 +496,7 @@ export default class ServicePauserExtension extends Extension {
 
     enable() {
         this._settings = this.getSettings();
-        this._manager = new ServicePauserManager(this._settings);
+        this._manager = new LoadshedManager(this._settings);
         // Loadshed takes over pausing for enabled GSettings targets,
         // so their own Quick Settings toggle would be redundant while we
         // manage it. (Folder Size no longer has a GSettings-backed toggle
@@ -521,7 +521,7 @@ export default class ServicePauserExtension extends Extension {
                 .catch(error => logError(error, 'Loadshed: failed to reload app targets'));
         });
 
-        this._indicator = new ServicePauserIndicator(this, this._manager);
+        this._indicator = new LoadshedIndicator(this, this._manager);
     }
 
     disable() {
